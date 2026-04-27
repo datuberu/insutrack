@@ -31,6 +31,13 @@ export default function DashboardPage() {
             </p>
           </div>
         </div>
+
+        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+          <h2 className="font-semibold text-amber-900">Safety note</h2>
+          <p className="mt-1 text-sm text-amber-800">
+            InsuTrack is a logging and routine-check tool only. Follow your clinician's instructions.
+          </p>
+        </div>
       </section>
     </main>
   );
