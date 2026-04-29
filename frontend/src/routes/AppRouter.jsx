@@ -3,6 +3,7 @@ import DashboardPage from "../pages/DashboardPage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import LogInjectionPage from "../pages/LogInjectionPage";
+import PreCheckPage from "../pages/PreCheckPage";
 
 export default function AppRouter() {
   return (
@@ -13,6 +14,7 @@ export default function AppRouter() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/log-injection" element={<LogInjectionPage />} />
+        <Route path="/pre-check" element={<PreCheckPage />} />
       </Routes>
     </BrowserRouter>
   );

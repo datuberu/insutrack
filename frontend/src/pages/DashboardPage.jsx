@@ -103,8 +103,15 @@ export default function DashboardPage() {
 
           <div className="flex flex-col gap-2 sm:flex-row">
             <Link
-              to="/log-injection"
+              to="/pre-check"
               className="rounded-xl bg-slate-900 px-4 py-2 text-center text-sm font-medium text-white"
+            >
+              Pre-check
+            </Link>
+
+            <Link
+              to="/log-injection"
+              className="rounded-xl border border-slate-300 px-4 py-2 text-center text-sm font-medium text-slate-700"
             >
               Log injection
             </Link>
