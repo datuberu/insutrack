@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.utils import timezone
 from rest_framework import generics, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -30,12 +31,20 @@ class InjectionLogListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         insulin_type = serializer.validated_data["insulin_type"]
         injected_at = serializer.validated_data["injected_at"]
+        override_reason = serializer.validated_data.get("override_reason", "").strip()
 
         duplicate_risk = has_duplicate_risk(
             user=self.request.user,
             insulin_type=insulin_type,
             injected_at=injected_at,
         )
+
+        if duplicate_risk and not override_reason:
+            raise ValidationError(
+                {
+                    "override_reason": "Override reason is required when possible duplicate risk is detected."
+                }
+            )
 
         serializer.save(
             user=self.request.user,
@@ -116,7 +125,6 @@ class PreCheckView(APIView):
 
         if last_injection:
             minutes_since = int((check_time - last_injection.injected_at).total_seconds() / 60)
-
             insulin_label = get_insulin_display_label(insulin_type)
 
             return Response(
