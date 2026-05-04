@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createInjectionLog } from "../features/injections/injectionApi";
 import { runPreCheck } from "../features/precheck/precheckApi";
+import {
+  createMealReminder,
+  updateUserSettings,
+} from "../features/reminders/reminderApi";
 
 function getCurrentDateTimeLocal() {
   const now = new Date();
@@ -69,6 +73,13 @@ export default function LogInjectionPage() {
   const [duplicateWarning, setDuplicateWarning] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [mealReminderOffset, setMealReminderOffset] = useState("10");
+  const [customMealReminderOffset, setCustomMealReminderOffset] = useState("");
+  const [mealReminderMessage, setMealReminderMessage] = useState("");
+  const [mealReminderError, setMealReminderError] = useState("");
+  const [isSavingReminder, setIsSavingReminder] = useState(false);
+  const [reminderSkipped, setReminderSkipped] = useState(false);
+
   function handleChange(event) {
     const { name, value } = event.target;
 
@@ -83,6 +94,9 @@ export default function LogInjectionPage() {
 
     setError("");
     setSuccessLog(null);
+    setMealReminderMessage("");
+    setMealReminderError("");
+    setReminderSkipped(false);
     setIsLoading(true);
 
     try {
@@ -135,9 +149,53 @@ export default function LogInjectionPage() {
     }
   }
 
+  async function handleSaveMealReminder() {
+    if (!successLog) return;
+
+    setMealReminderError("");
+    setMealReminderMessage("");
+    setIsSavingReminder(true);
+
+    const offset =
+      mealReminderOffset === "custom"
+        ? Number(customMealReminderOffset)
+        : Number(mealReminderOffset);
+
+    if (!Number.isInteger(offset) || offset < 0 || offset > 180) {
+      setMealReminderError("Reminder offset must be between 0 and 180 minutes.");
+      setIsSavingReminder(false);
+      return;
+    }
+
+    try {
+      await updateUserSettings({
+        meal_reminder_enabled: true,
+        meal_reminder_offset_minutes: offset,
+      });
+
+      const reminder = await createMealReminder({
+        injection_log: successLog.id,
+        offset_minutes: offset,
+      });
+
+      setMealReminderMessage(
+        `Meal reminder saved for ${formatDateTime(reminder.remind_at)}.`
+      );
+    } catch {
+      setMealReminderError("Could not save meal reminder. Please try again.");
+    } finally {
+      setIsSavingReminder(false);
+    }
+  }
+
   function handleGoToDashboard() {
     navigate("/dashboard");
   }
+
+  const shouldShowMealReminderPrompt =
+    successLog?.insulin_type === "RAPID_ACTING" &&
+    !mealReminderMessage &&
+    !reminderSkipped;
 
   return (
     <main className="min-h-screen bg-slate-50 p-6">
@@ -173,6 +231,11 @@ export default function LogInjectionPage() {
           <div className="mt-6 rounded-2xl border border-green-200 bg-green-50 p-5 text-green-800">
             <h2 className="font-semibold">Injection log saved.</h2>
 
+            <p className="mt-2 text-sm">
+              {getInsulinTypeLabel(successLog.insulin_type)} ·{" "}
+              {successLog.dose_units} units
+            </p>
+
             {successLog.duplicate_risk_flag && (
               <p className="mt-2 text-sm">
                 This log was flagged as a possible duplicate based on your recent
@@ -186,6 +249,94 @@ export default function LogInjectionPage() {
             >
               Go to dashboard
             </button>
+          </div>
+        )}
+
+        {shouldShowMealReminderPrompt && (
+          <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5">
+            <h2 className="text-lg font-semibold text-sky-950">
+              Set meal reminder?
+            </h2>
+
+            <p className="mt-2 text-sm text-sky-800">
+              Personal routine reminder only — follow your clinician&apos;s
+              instructions.
+            </p>
+
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-sky-950">
+                  Reminder timing
+                </label>
+
+                <select
+                  value={mealReminderOffset}
+                  onChange={(event) => setMealReminderOffset(event.target.value)}
+                  className="mt-1 w-full rounded-xl border border-sky-300 px-3 py-2"
+                >
+                  <option value="0">Immediately</option>
+                  <option value="10">10 minutes</option>
+                  <option value="15">15 minutes</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+
+              {mealReminderOffset === "custom" && (
+                <div>
+                  <label className="block text-sm font-medium text-sky-950">
+                    Custom minutes
+                  </label>
+
+                  <input
+                    value={customMealReminderOffset}
+                    onChange={(event) =>
+                      setCustomMealReminderOffset(event.target.value)
+                    }
+                    className="mt-1 w-full rounded-xl border border-sky-300 px-3 py-2"
+                    type="number"
+                    min="0"
+                    max="180"
+                    placeholder="Example: 20"
+                  />
+                </div>
+              )}
+            </div>
+
+            {mealReminderError && (
+              <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                {mealReminderError}
+              </div>
+            )}
+
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={handleSaveMealReminder}
+                disabled={isSavingReminder}
+                className="rounded-xl bg-sky-700 px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+              >
+                {isSavingReminder ? "Saving reminder..." : "Save reminder"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setReminderSkipped(true)}
+                className="rounded-xl border border-sky-300 px-4 py-2 text-sm font-medium text-sky-900"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        )}
+
+        {mealReminderMessage && (
+          <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5 text-sky-900">
+            <h2 className="font-semibold">Meal reminder saved.</h2>
+            <p className="mt-1 text-sm">{mealReminderMessage}</p>
+            <p className="mt-2 text-xs text-sky-700">
+              Personal routine reminder only — follow your clinician&apos;s
+              instructions.
+            </p>
           </div>
         )}
 
