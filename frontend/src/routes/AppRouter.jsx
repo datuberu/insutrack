@@ -5,6 +5,7 @@ import RegisterPage from "../pages/RegisterPage";
 import LogInjectionPage from "../pages/LogInjectionPage";
 import PreCheckPage from "../pages/PreCheckPage";
 import HistoryPage from "../pages/HistoryPage";
+import EditInjectionPage from "../pages/EditInjectionPage";
 
 export default function AppRouter() {
   return (
@@ -17,6 +18,7 @@ export default function AppRouter() {
         <Route path="/log-injection" element={<LogInjectionPage />} />
         <Route path="/pre-check" element={<PreCheckPage />} />
         <Route path="/history" element={<HistoryPage />} />
+	<Route path="/edit-injection/:id" element={<EditInjectionPage />} />
       </Routes>
     </BrowserRouter>
   );

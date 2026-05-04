@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getInjectionLogs } from "../features/injections/injectionApi";
+import {
+  getInjectionLogs,
+  deleteInjectionLog,
+} from "../features/injections/injectionApi";
 
 function formatDateTime(value) {
   if (!value) return "No time recorded";
@@ -27,6 +30,7 @@ export default function HistoryPage() {
   const [logs, setLogs] = useState([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeletingId, setIsDeletingId] = useState(null);
 
   useEffect(() => {
     async function loadLogs() {
@@ -43,29 +47,50 @@ export default function HistoryPage() {
     loadLogs();
   }, []);
 
+  async function handleDelete(id) {
+    const confirmed = window.confirm("Delete this injection log?");
+
+    if (!confirmed) return;
+
+    setError("");
+    setIsDeletingId(id);
+
+    try {
+      await deleteInjectionLog(id);
+      setLogs((currentLogs) => currentLogs.filter((log) => log.id !== id));
+    } catch {
+      setError("Could not delete this injection log.");
+    } finally {
+      setIsDeletingId(null);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 p-6">
       <section className="mx-auto max-w-5xl">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Link to="/dashboard" className="text-sm font-medium text-slate-600 underline">
+          <Link
+            to="/dashboard"
+            className="text-sm font-medium text-slate-600 underline"
+          >
             ← Back to dashboard
           </Link>
 
           <div className="flex flex-col gap-2 sm:flex-row">
-          <Link
-            to="/pre-check"
-            className="rounded-xl bg-slate-900 px-4 py-2 text-center text-sm font-medium text-white"
-          >
-           Pre-check
-          </Link>
+            <Link
+              to="/pre-check"
+              className="rounded-xl bg-slate-900 px-4 py-2 text-center text-sm font-medium text-white"
+            >
+              Pre-check
+            </Link>
 
-          <Link
-            to="/log-injection"
-           className="rounded-xl border border-slate-300 px-4 py-2 text-center text-sm font-medium text-slate-700"
-          >
-          Log injection
-          </Link>
-        </div>
+            <Link
+              to="/log-injection"
+              className="rounded-xl border border-slate-300 px-4 py-2 text-center text-sm font-medium text-slate-700"
+            >
+              Log injection
+            </Link>
+          </div>
         </div>
 
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
@@ -76,7 +101,7 @@ export default function HistoryPage() {
           </h1>
 
           <p className="mt-2 text-slate-600">
-            Review previously recorded insulin logs.
+            Review, edit, or delete previously recorded insulin logs.
           </p>
         </div>
 
@@ -102,9 +127,7 @@ export default function HistoryPage() {
         {!isLoading && !error && (
           <div className="mt-6 rounded-2xl border bg-white p-5 shadow-sm">
             {logs.length === 0 ? (
-              <p className="text-sm text-slate-600">
-                No injection logs yet.
-              </p>
+              <p className="text-sm text-slate-600">No injection logs yet.</p>
             ) : (
               <div className="space-y-3">
                 {logs.map((log) => (
@@ -147,6 +170,24 @@ export default function HistoryPage() {
                         {log.override_reason}
                       </div>
                     )}
+
+                    <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                      <Link
+                        to={`/edit-injection/${log.id}`}
+                        className="rounded-xl border border-slate-300 px-4 py-2 text-center text-sm font-medium text-slate-700"
+                      >
+                        Edit
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(log.id)}
+                        disabled={isDeletingId === log.id}
+                        className="rounded-xl border border-red-300 px-4 py-2 text-sm font-medium text-red-700 disabled:opacity-60"
+                      >
+                        {isDeletingId === log.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

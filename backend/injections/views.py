@@ -52,7 +52,7 @@ class InjectionLogListCreateView(generics.ListCreateAPIView):
         )
 
 
-class InjectionLogDetailView(generics.RetrieveAPIView):
+class InjectionLogDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = InjectionLogSerializer
     permission_classes = [IsAuthenticated]
 
