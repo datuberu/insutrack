@@ -60,9 +60,13 @@ Healthy Lives \& Well-being
 
 \- User registration
 
+\- Full CRUD for injection logs
+
 \- User login with JWT authentication
 
 \- Protected frontend routes
+
+\- Token refresh handling
 
 \- Dashboard with latest injection summary
 
@@ -81,6 +85,10 @@ Healthy Lives \& Well-being
 \- Override reason for possible duplicate logs
 
 \- Meal reminder prompt after rapid-acting insulin log
+
+\- Browser notification reminder
+
+\- Deployment: Vercel + Render
 
 \- Responsive UI with Tailwind CSS
 
