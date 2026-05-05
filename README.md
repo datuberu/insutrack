@@ -1,6 +1,10 @@
 \# InsuTrack
 
+## Live Demo
 
+Frontend: https://insutrack.vercel.app
+
+Backend Health Check: https://insutrack-backend.onrender.com/api/health/
 
 InsuTrack is a full-stack web application built with React and Django REST Framework. It helps users and caregivers record insulin injections, check recent injection history, and reduce the risk of accidental duplicate injection logging.
 
