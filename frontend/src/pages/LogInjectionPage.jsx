@@ -6,6 +6,10 @@ import {
   createMealReminder,
   updateUserSettings,
 } from "../features/reminders/reminderApi";
+import {
+  requestMealReminderNotificationPermission,
+  scheduleMealReminderNotification,
+} from "../features/reminders/notificationUtils";
 
 function getCurrentDateTimeLocal() {
   const now = new Date();
@@ -178,9 +182,35 @@ export default function LogInjectionPage() {
         offset_minutes: offset,
       });
 
-      setMealReminderMessage(
-        `Meal reminder saved for ${formatDateTime(reminder.remind_at)}.`
-      );
+      const permission = await requestMealReminderNotificationPermission();
+
+      if (permission === "granted") {
+        scheduleMealReminderNotification(reminder);
+
+        setMealReminderMessage(
+          `Meal reminder saved for ${formatDateTime(
+            reminder.remind_at
+          )}. Browser notification is enabled.`
+        );
+      } else if (permission === "denied") {
+        setMealReminderMessage(
+          `Meal reminder saved for ${formatDateTime(
+            reminder.remind_at
+          )}. Browser notifications are blocked in your browser settings.`
+        );
+      } else if (permission === "unsupported") {
+        setMealReminderMessage(
+          `Meal reminder saved for ${formatDateTime(
+            reminder.remind_at
+          )}. Browser notifications are not supported here.`
+        );
+      } else {
+        setMealReminderMessage(
+          `Meal reminder saved for ${formatDateTime(
+            reminder.remind_at
+          )}. Browser notification was not enabled.`
+        );
+      }
     } catch {
       setMealReminderError("Could not save meal reminder. Please try again.");
     } finally {
@@ -259,7 +289,7 @@ export default function LogInjectionPage() {
             </h2>
 
             <p className="mt-2 text-sm text-sky-800">
-              Personal routine reminder only — follow your clinician&apos;s
+              Personal routine reminder only. Follow your clinician&apos;s
               instructions.
             </p>
 
@@ -332,9 +362,11 @@ export default function LogInjectionPage() {
         {mealReminderMessage && (
           <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5 text-sky-900">
             <h2 className="font-semibold">Meal reminder saved.</h2>
+
             <p className="mt-1 text-sm">{mealReminderMessage}</p>
+
             <p className="mt-2 text-xs text-sky-700">
-              Personal routine reminder only — follow your clinician&apos;s
+              Personal routine reminder only. Follow your clinician&apos;s
               instructions.
             </p>
           </div>
