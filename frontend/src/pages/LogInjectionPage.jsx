@@ -304,9 +304,9 @@ export default function LogInjectionPage() {
                   onChange={(event) => setMealReminderOffset(event.target.value)}
                   className="mt-1 w-full rounded-xl border border-sky-300 px-3 py-2"
                 >
-                  <option value="0">Immediately</option>
                   <option value="10">10 minutes</option>
-                  <option value="15">15 minutes</option>
+                  <option value="20">20 minutes</option>
+                  <option value="30">30 minutes</option>
                   <option value="custom">Custom</option>
                 </select>
               </div>
