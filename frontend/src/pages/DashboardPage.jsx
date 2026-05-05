@@ -177,7 +177,7 @@ export default function DashboardPage() {
                 </p>
 
                 <p className="mt-1 text-xs text-sky-700">
-                  Personal routine reminder only — follow your clinician&apos;s
+                  Personal routine reminder only. Follow your clinician&apos;s
                   instructions.
                 </p>
               </div>
