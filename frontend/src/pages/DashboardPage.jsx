@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getDashboardSummary } from "../features/dashboard/dashboardApi";
+import { scheduleMealReminderNotification } from "../features/reminders/notificationUtils";
 
 function formatDateTime(value) {
   if (!value) return "No time recorded";
@@ -23,13 +24,26 @@ function getInsulinTypeLabel(insulinType) {
   return "Insulin";
 }
 
-function InsulinSummaryCard({ title, log }) {
+function InsulinSummaryCard({ title, log, emptyText }) {
   return (
     <div className="rounded-2xl border bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+          <p className="mt-1 text-sm text-slate-500">Latest completed log</p>
+        </div>
+      </div>
 
       {!log ? (
-        <p className="mt-2 text-sm text-slate-600">No recent log loaded yet.</p>
+        <div className="mt-4 rounded-xl bg-slate-50 p-4">
+          <p className="text-sm text-slate-600">{emptyText}</p>
+          <Link
+            to="/log-injection"
+            className="mt-3 inline-block text-sm font-medium text-slate-900 underline"
+          >
+            Log a completed injection
+          </Link>
+        </div>
       ) : (
         <div className="mt-4 space-y-2 text-sm text-slate-700">
           <p>
@@ -79,6 +93,25 @@ export default function DashboardPage() {
     loadDashboard();
   }, []);
 
+  useEffect(() => {
+    if (!summary?.upcoming_meal_reminder) {
+      return;
+    }
+
+    const timeoutId = scheduleMealReminderNotification(
+      summary.upcoming_meal_reminder
+    );
+
+    return () => {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [
+    summary?.upcoming_meal_reminder?.id,
+    summary?.upcoming_meal_reminder?.remind_at,
+  ]);
+
   function handleLogout() {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
@@ -86,54 +119,81 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6">
-      <section className="mx-auto max-w-5xl">
-        <div className="flex flex-col gap-4 rounded-2xl border bg-white p-6 shadow-sm md:flex-row md:items-start md:justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-500">InsuTrack</p>
+    <main className="min-h-screen bg-slate-50 p-4 sm:p-6">
+      <section className="mx-auto max-w-6xl">
+        <div className="rounded-3xl border bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+                InsuTrack
+              </p>
 
-            <h1 className="mt-1 text-3xl font-bold text-slate-900">
-              Injection safety dashboard
-            </h1>
+              <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+                Injection safety dashboard
+              </h1>
 
-            <p className="mt-2 text-slate-600">
-              Check recent logs before injection and record completed injections.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Link
-              to="/pre-check"
-              className="rounded-xl bg-slate-900 px-4 py-2 text-center text-sm font-medium text-white"
-            >
-              Pre-check
-            </Link>
-
-            <Link
-              to="/log-injection"
-              className="rounded-xl border border-slate-300 px-4 py-2 text-center text-sm font-medium text-slate-700"
-            >
-              Log injection
-            </Link>
-
-            <Link
-              to="/history"
-              className="rounded-xl border border-slate-300 px-4 py-2 text-center text-sm font-medium text-slate-700"
-            >
-              History
-            </Link>
+              <p className="mt-3 text-base leading-7 text-slate-600">
+                Review recent insulin logs before recording another completed
+                injection.
+              </p>
+            </div>
 
             <button
               onClick={handleLogout}
-              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700"
+              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
               Logout
             </button>
           </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <Link
+              to="/pre-check"
+              className="rounded-2xl bg-slate-950 p-5 text-white shadow-sm transition hover:bg-slate-800"
+            >
+              <p className="text-sm font-medium text-slate-300">
+                Recommended first
+              </p>
+              <h2 className="mt-1 text-xl font-semibold">Pre-check</h2>
+              <p className="mt-2 text-sm leading-6 text-slate-300">
+                Check recent logs before proceeding.
+              </p>
+            </Link>
+
+            <Link
+              to="/log-injection"
+              className="rounded-2xl border bg-white p-5 shadow-sm transition hover:bg-slate-50"
+            >
+              <p className="text-sm font-medium text-slate-500">
+                After injection
+              </p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-900">
+                Log injection
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Record a completed injection.
+              </p>
+            </Link>
+
+            <Link
+              to="/history"
+              className="rounded-2xl border bg-white p-5 shadow-sm transition hover:bg-slate-50"
+            >
+              <p className="text-sm font-medium text-slate-500">
+                Review records
+              </p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-900">
+                History
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                View, edit, or delete saved logs.
+              </p>
+            </Link>
+          </div>
         </div>
 
         {isLoading && (
-          <div className="mt-6 rounded-2xl border bg-white p-5 text-slate-600">
+          <div className="mt-6 rounded-2xl border bg-white p-5 text-slate-600 shadow-sm">
             Loading dashboard...
           </div>
         )}
@@ -157,17 +217,19 @@ export default function DashboardPage() {
               <InsulinSummaryCard
                 title="Rapid-acting insulin (bolus)"
                 log={summary?.last_rapid_acting}
+                emptyText="No rapid-acting insulin log yet."
               />
 
               <InsulinSummaryCard
                 title="Long-acting insulin (basal)"
                 log={summary?.last_long_acting}
+                emptyText="No long-acting insulin log yet."
               />
             </div>
 
             {summary?.upcoming_meal_reminder && (
               <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5">
-                <h2 className="font-semibold text-sky-900">
+                <h2 className="font-semibold text-sky-950">
                   Upcoming meal reminder
                 </h2>
 
@@ -176,7 +238,7 @@ export default function DashboardPage() {
                   {formatDateTime(summary.upcoming_meal_reminder.remind_at)}
                 </p>
 
-                <p className="mt-1 text-xs text-sky-700">
+                <p className="mt-2 text-xs text-sky-700">
                   Personal routine reminder only. Follow your clinician&apos;s
                   instructions.
                 </p>
@@ -184,9 +246,23 @@ export default function DashboardPage() {
             )}
 
             <div className="mt-6 rounded-2xl border bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-semibold text-slate-900">
-                Recent history
-              </h2>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900">
+                    Recent history
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Latest saved injection logs.
+                  </p>
+                </div>
+
+                <Link
+                  to="/history"
+                  className="rounded-xl border border-slate-300 px-4 py-2 text-center text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
+                  View all
+                </Link>
+              </div>
 
               {summary?.recent_history?.length ? (
                 <div className="mt-4 space-y-3">
@@ -219,9 +295,12 @@ export default function DashboardPage() {
                   ))}
                 </div>
               ) : (
-                <p className="mt-2 text-sm text-slate-600">
-                  No injection history yet.
-                </p>
+                <div className="mt-4 rounded-xl bg-slate-50 p-4">
+                  <p className="text-sm text-slate-600">
+                    No injection history yet. Start by logging a completed
+                    injection.
+                  </p>
+                </div>
               )}
             </div>
           </>
