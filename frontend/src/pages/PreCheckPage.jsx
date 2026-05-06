@@ -2,6 +2,36 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { runPreCheck } from "../features/precheck/precheckApi";
 
+/*
+  InsuTrack UI color system
+
+  Background: #F7FAFC
+  Surface: #FFFFFF
+  Soft surface: #F1F5F9
+  Border: #D9E2EC
+  Main text: #102A43
+  Secondary text: #627D98
+
+  Primary blue: #1F4E79
+  Primary hover: #173F63
+  Soft primary: #EAF2F8
+
+  Teal/reminder: #2A9D8F
+  Soft teal: #E8F7F5
+
+  Warning: #D69E2E
+  Soft warning: #FFF8E1
+
+  Success: #2F855A
+  Soft success: #E6F6EC
+
+  Danger: #E53E3E
+  Soft danger: #FDECEC
+
+  Rapid tag: #2563EB / #DBEAFE
+  Long tag: #7C3AED / #EDE9FE
+*/
+
 function formatDateTime(value) {
   if (!value) return "No time recorded";
 
@@ -21,6 +51,44 @@ function getInsulinTypeLabel(insulinType) {
   }
 
   return "Insulin";
+}
+
+function getInsulinTagStyle(insulinType) {
+  if (insulinType === "RAPID_ACTING") {
+    return "border-[#BFDBFE] bg-[#DBEAFE] text-[#1D4ED8]";
+  }
+
+  if (insulinType === "LONG_ACTING") {
+    return "border-[#DDD6FE] bg-[#EDE9FE] text-[#6D28D9]";
+  }
+
+  return "border-slate-200 bg-slate-100 text-slate-700";
+}
+
+function DetailItem({ label, value }) {
+  return (
+    <div className="rounded-2xl bg-[#F7FAFC] p-4">
+      <p className="text-xs font-bold uppercase tracking-wide text-[#627D98]">
+        {label}
+      </p>
+
+      <p className="mt-1 text-sm font-semibold text-[#102A43]">{value}</p>
+    </div>
+  );
+}
+
+function SafetyNote() {
+  return (
+    <div className="rounded-3xl border border-[#F6D365] bg-[#FFF8E1] p-5">
+      <h2 className="font-bold text-[#8A5A00]">Safety note</h2>
+
+      <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
+        InsuTrack is a logging and routine-check tool only. It does not decide
+        whether you should inject, calculate doses, or provide medical advice.
+        Follow your clinician&apos;s instructions.
+      </p>
+    </div>
+  );
 }
 
 export default function PreCheckPage() {
@@ -52,97 +120,137 @@ export default function PreCheckPage() {
   const selectedInsulinLabel = getInsulinTypeLabel(insulinType);
 
   return (
-    <main className="min-h-screen bg-slate-50 p-4 sm:p-6">
-      <section className="mx-auto max-w-3xl">
+    <main className="min-h-screen bg-[#F7FAFC] p-4 text-[#102A43] sm:p-6">
+      <section className="mx-auto max-w-5xl">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link
             to="/dashboard"
-            className="text-sm font-medium text-slate-600 underline"
+            className="text-sm font-semibold text-[#1F4E79] underline-offset-4 hover:underline"
           >
             ← Back to dashboard
           </Link>
 
-          <Link
-            to="/history"
-            className="rounded-xl border border-slate-300 px-4 py-2 text-center text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
-            View history
-          </Link>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Link
+              to="/history"
+              className="rounded-xl border border-[#B8C9D9] bg-white px-4 py-2 text-center text-sm font-semibold text-[#1F4E79] shadow-sm transition hover:bg-[#EAF2F8]"
+            >
+              View history
+            </Link>
+
+            <Link
+              to="/log-injection"
+              className="rounded-xl bg-[#1F4E79] px-4 py-2 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-[#173F63]"
+            >
+              Log injection
+            </Link>
+          </div>
         </div>
 
-        <div className="rounded-3xl border bg-white p-6 shadow-sm sm:p-8">
-          <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
-            InsuTrack
-          </p>
+        <div className="overflow-hidden rounded-[2rem] border border-[#D9E2EC] bg-white shadow-sm">
+          <div className="bg-gradient-to-br from-[#EAF2F8] via-white to-[#E8F7F5] p-6 sm:p-8">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#1F4E79]">
+              InsuTrack
+            </p>
 
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
-            Pre-injection check
-          </h1>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#102A43] sm:text-4xl">
+              Pre-injection check
+            </h1>
 
-          <p className="mt-3 text-base leading-7 text-slate-600">
-            Check recent logs before recording another completed injection. This
-            helps you review whether a similar insulin type was logged recently.
-          </p>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-[#486581]">
+              Review recent logs before recording another completed injection.
+              This helps you check whether a similar insulin type was logged
+              recently.
+            </p>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <div className="rounded-3xl border border-[#B8C9D9] bg-white/80 p-5">
+                <p className="text-sm font-bold text-[#1F4E79]">
+                  1. Choose insulin
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-[#627D98]">
+                  Select rapid-acting or long-acting insulin.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-[#BFE7E1] bg-[#E8F7F5] p-5">
+                <p className="text-sm font-bold text-[#24786E]">
+                  2. Run check
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-[#246B63]">
+                  InsuTrack checks your recent saved logs.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-[#F6D365] bg-[#FFF8E1] p-5">
+                <p className="text-sm font-bold text-[#8A5A00]">
+                  3. Review result
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
+                  Safe means no matching recent log was found. Caution means
+                  review carefully.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="mt-6 rounded-2xl border bg-white p-6 shadow-sm"
+          className="mt-6 rounded-3xl border border-[#D9E2EC] bg-white p-6 shadow-sm"
         >
-          <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Which insulin type do you want to check?
-            </label>
+          <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-end">
+            <div>
+              <label className="block text-sm font-bold text-[#102A43]">
+                Which insulin type do you want to check?
+              </label>
 
-            <select
-              value={insulinType}
-              onChange={(event) => {
-                setInsulinType(event.target.value);
-                setResult(null);
-                setError("");
-              }}
-              className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2"
+              <select
+                value={insulinType}
+                onChange={(event) => {
+                  setInsulinType(event.target.value);
+                  setResult(null);
+                  setError("");
+                }}
+                className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
+              >
+                <option value="RAPID_ACTING">Rapid-acting insulin (bolus)</option>
+                <option value="LONG_ACTING">Long-acting insulin (basal)</option>
+              </select>
+
+              <div className="mt-3">
+                <span
+                  className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getInsulinTagStyle(
+                    insulinType
+                  )}`}
+                >
+                  Selected: {selectedInsulinLabel}
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="rounded-xl bg-[#1F4E79] px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-[#173F63] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <option value="RAPID_ACTING">Rapid-acting insulin (bolus)</option>
-              <option value="LONG_ACTING">Long-acting insulin (basal)</option>
-            </select>
-
-            <p className="mt-2 text-sm text-slate-500">
-              Selected:{" "}
-              <span className="font-medium text-slate-700">
-                {selectedInsulinLabel}
-              </span>
-            </p>
+              {isLoading ? "Checking..." : "Run check"}
+            </button>
           </div>
-
-          <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-            <h2 className="font-semibold text-amber-900">Safety note</h2>
-
-            <p className="mt-1 text-sm leading-6 text-amber-800">
-              InsuTrack is a logging and routine-check tool only. It does not
-              decide whether you should inject, calculate doses, or provide
-              medical advice. Follow your clinician&apos;s instructions.
-            </p>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="mt-6 w-full rounded-xl bg-slate-900 px-4 py-3 font-medium text-white disabled:opacity-60"
-          >
-            {isLoading ? "Checking..." : "Run pre-injection check"}
-          </button>
         </form>
 
         {error && (
-          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700">
-            <h2 className="font-semibold">Check failed</h2>
+          <div className="mt-6 rounded-3xl border border-red-200 bg-[#FDECEC] p-5 text-red-700">
+            <h2 className="font-bold">Check failed</h2>
 
-            <p className="mt-1 text-sm">{error}</p>
+            <p className="mt-2 text-sm leading-6">{error}</p>
 
             <Link
               to="/login"
-              className="mt-4 inline-block rounded-xl bg-red-700 px-4 py-2 text-sm font-medium text-white"
+              className="mt-4 inline-flex rounded-xl bg-red-700 px-4 py-2 text-sm font-semibold text-white"
             >
               Go to login
             </Link>
@@ -150,135 +258,160 @@ export default function PreCheckPage() {
         )}
 
         {result && result.status === "safe" && (
-          <div className="mt-6 rounded-2xl border border-green-200 bg-green-50 p-5">
-            <p className="text-sm font-semibold uppercase tracking-wide text-green-700">
-              Safe check result
-            </p>
+          <div className="mt-6 overflow-hidden rounded-3xl border border-[#B7E4C7] bg-white shadow-sm">
+            <div className="bg-[#E6F6EC] p-6">
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#2F855A]">
+                Safe check result
+              </p>
 
-            <h2 className="mt-1 text-xl font-semibold text-green-950">
-              No recent matching log found
-            </h2>
+              <h2 className="mt-2 text-2xl font-bold text-[#174A31]">
+                No recent matching log found
+              </h2>
 
-            <p className="mt-2 text-sm leading-6 text-green-800">
-              {result.message}
-            </p>
-
-            <div className="mt-4 rounded-xl border border-green-200 bg-white p-4 text-sm text-slate-700">
-              This means InsuTrack did not find a recent saved log for{" "}
-              <span className="font-medium">{selectedInsulinLabel}</span> inside
-              the duplicate-check window. This is not medical advice.
+              <p className="mt-3 text-sm leading-6 text-[#2F855A]">
+                {result.message}
+              </p>
             </div>
 
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-              <Link
-                to="/log-injection"
-                className="rounded-xl bg-green-700 px-4 py-2 text-center text-sm font-medium text-white"
-              >
-                Continue to log completed injection
-              </Link>
+            <div className="p-6">
+              <div className="rounded-2xl border border-[#B7E4C7] bg-[#F7FAFC] p-5 text-sm leading-6 text-[#486581]">
+                InsuTrack did not find a recent saved log for{" "}
+                <span className="font-bold text-[#102A43]">
+                  {selectedInsulinLabel}
+                </span>{" "}
+                inside the duplicate-check window. This is not medical advice.
+              </div>
 
-              <Link
-                to="/dashboard"
-                className="rounded-xl border border-green-300 px-4 py-2 text-center text-sm font-medium text-green-800"
-              >
-                Back to dashboard
-              </Link>
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                <Link
+                  to="/log-injection"
+                  className="rounded-xl bg-[#2F855A] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#276749]"
+                >
+                  Continue to log completed injection
+                </Link>
+
+                <Link
+                  to="/dashboard"
+                  className="rounded-xl border border-[#B7E4C7] bg-white px-4 py-3 text-center text-sm font-semibold text-[#2F855A] transition hover:bg-[#E6F6EC]"
+                >
+                  Back to dashboard
+                </Link>
+              </div>
             </div>
           </div>
         )}
 
         {result && result.status === "caution" && (
-          <div className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-5">
-            <p className="text-sm font-semibold uppercase tracking-wide text-amber-700">
-              Caution
-            </p>
+          <div className="mt-6 overflow-hidden rounded-3xl border border-[#F6D365] bg-white shadow-sm">
+            <div className="bg-[#FFF8E1] p-6">
+              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#8A5A00]">
+                Caution
+              </p>
 
-            <h2 className="mt-1 text-xl font-semibold text-amber-950">
-              Possible duplicate detected
-            </h2>
+              <h2 className="mt-2 text-2xl font-bold text-[#8A5A00]">
+                Possible duplicate detected
+              </h2>
 
-            <p className="mt-2 text-sm leading-6 text-amber-900">
-              {result.message}
-            </p>
-
-            {result.last_injection && (
-              <div className="mt-4 rounded-xl border border-amber-200 bg-white p-4 text-sm text-slate-700">
-                <h3 className="font-semibold text-slate-900">
-                  Last matching log
-                </h3>
-
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  <p>
-                    <span className="font-medium">Type:</span>{" "}
-                    {getInsulinTypeLabel(result.last_injection.insulin_type)}
-                  </p>
-
-                  <p>
-                    <span className="font-medium">Dose:</span>{" "}
-                    {result.last_injection.dose_units} units
-                  </p>
-
-                  <p>
-                    <span className="font-medium">Injected at:</span>{" "}
-                    {formatDateTime(result.last_injection.injected_at)}
-                  </p>
-
-                  <p>
-                    <span className="font-medium">Recorded by:</span>{" "}
-                    {result.last_injection.recorded_by_name}
-                  </p>
-
-                  {result.time_since_last_minutes !== null && (
-                    <p className="sm:col-span-2">
-                      <span className="font-medium">Time since last log:</span>{" "}
-                      {result.time_since_last_minutes} minutes
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="mt-4 rounded-xl border border-amber-200 bg-amber-100 p-4 text-sm leading-6 text-amber-950">
-              Review your actual routine carefully before continuing. InsuTrack
-              does not decide whether you should inject. If you already completed
-              another injection and need to save it, the log page will require an
-              override reason.
+              <p className="mt-3 text-sm leading-6 text-[#8A5A00]">
+                {result.message}
+              </p>
             </div>
 
-            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-              <Link
-                to="/log-injection"
-                className="rounded-xl bg-amber-700 px-4 py-2 text-center text-sm font-medium text-white"
-              >
-                Continue to log if already completed
-              </Link>
+            <div className="p-6">
+              {result.last_injection && (
+                <div className="rounded-3xl border border-[#D9E2EC] bg-white p-5">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-sm font-bold uppercase tracking-wide text-[#627D98]">
+                        Last matching log
+                      </p>
 
-              <Link
-                to="/history"
-                className="rounded-xl border border-amber-300 px-4 py-2 text-center text-sm font-medium text-amber-900"
-              >
-                Review history
-              </Link>
+                      <span
+                        className={`mt-3 inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${getInsulinTagStyle(
+                          result.last_injection.insulin_type
+                        )}`}
+                      >
+                        {getInsulinTypeLabel(result.last_injection.insulin_type)}
+                      </span>
+                    </div>
 
-              <Link
-                to="/dashboard"
-                className="rounded-xl border border-amber-300 px-4 py-2 text-center text-sm font-medium text-amber-900"
-              >
-                Back to dashboard
-              </Link>
+                    <span className="inline-flex w-fit rounded-full border border-[#F6D365] bg-[#FFF8E1] px-3 py-1 text-xs font-semibold text-[#8A5A00]">
+                      Review carefully
+                    </span>
+                  </div>
+
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    <DetailItem
+                      label="Dose"
+                      value={`${result.last_injection.dose_units} units`}
+                    />
+
+                    <DetailItem
+                      label="Injected at"
+                      value={formatDateTime(result.last_injection.injected_at)}
+                    />
+
+                    <DetailItem
+                      label="Recorded by"
+                      value={result.last_injection.recorded_by_name}
+                    />
+
+                    {result.time_since_last_minutes !== null && (
+                      <DetailItem
+                        label="Time since last log"
+                        value={`${result.time_since_last_minutes} minutes`}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-5 rounded-2xl border border-[#F6D365] bg-[#FFF8E1] p-5 text-sm leading-6 text-[#8A5A00]">
+                Review your actual routine carefully before continuing.
+                InsuTrack does not decide whether you should inject. If you
+                already completed another injection and need to save it, the log
+                page will require an override reason.
+              </div>
+
+              <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                <Link
+                  to="/log-injection"
+                  className="rounded-xl bg-[#D69E2E] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#B7791F]"
+                >
+                  Continue if already completed
+                </Link>
+
+                <Link
+                  to="/history"
+                  className="rounded-xl border border-[#F6D365] bg-white px-4 py-3 text-center text-sm font-semibold text-[#8A5A00] transition hover:bg-[#FFF8E1]"
+                >
+                  Review history
+                </Link>
+
+                <Link
+                  to="/dashboard"
+                  className="rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-center text-sm font-semibold text-[#1F4E79] transition hover:bg-[#EAF2F8]"
+                >
+                  Back to dashboard
+                </Link>
+              </div>
             </div>
           </div>
         )}
 
         {!result && !error && (
-          <div className="mt-6 rounded-2xl border bg-white p-5 text-sm text-slate-600 shadow-sm">
+          <div className="mt-6 rounded-3xl border border-[#D9E2EC] bg-white p-5 text-sm leading-6 text-[#627D98] shadow-sm">
             Run the check to see whether there is a recent matching log for{" "}
-            <span className="font-medium text-slate-900">
+            <span className="font-bold text-[#102A43]">
               {selectedInsulinLabel}
             </span>
             .
           </div>
         )}
+
+        <div className="mt-6">
+          <SafetyNote />
+        </div>
       </section>
     </main>
   );
