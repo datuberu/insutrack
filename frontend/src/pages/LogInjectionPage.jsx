@@ -7,8 +7,8 @@ import {
   updateUserSettings,
 } from "../features/reminders/reminderApi";
 import {
-  requestMealReminderNotificationPermission,
   scheduleMealReminderNotification,
+  unlockReminderSound,
 } from "../features/reminders/notificationUtils";
 
 function getCurrentDateTimeLocal() {
@@ -160,6 +160,8 @@ export default function LogInjectionPage() {
     setMealReminderMessage("");
     setIsSavingReminder(true);
 
+    await unlockReminderSound();
+
     const offset =
       mealReminderOffset === "custom"
         ? Number(customMealReminderOffset)
@@ -182,35 +184,11 @@ export default function LogInjectionPage() {
         offset_minutes: offset,
       });
 
-      const permission = await requestMealReminderNotificationPermission();
+      scheduleMealReminderNotification(reminder);
 
-      if (permission === "granted") {
-        scheduleMealReminderNotification(reminder);
-
-        setMealReminderMessage(
-          `Meal reminder saved for ${formatDateTime(
-            reminder.remind_at
-          )}. Browser notification is enabled.`
-        );
-      } else if (permission === "denied") {
-        setMealReminderMessage(
-          `Meal reminder saved for ${formatDateTime(
-            reminder.remind_at
-          )}. Browser notifications are blocked in your browser settings.`
-        );
-      } else if (permission === "unsupported") {
-        setMealReminderMessage(
-          `Meal reminder saved for ${formatDateTime(
-            reminder.remind_at
-          )}. Browser notifications are not supported here.`
-        );
-      } else {
-        setMealReminderMessage(
-          `Meal reminder saved for ${formatDateTime(
-            reminder.remind_at
-          )}. Browser notification was not enabled.`
-        );
-      }
+      setMealReminderMessage(
+        `Meal reminder saved for ${formatDateTime(reminder.remind_at)}.`
+      );
     } catch {
       setMealReminderError("Could not save meal reminder. Please try again.");
     } finally {
@@ -222,6 +200,7 @@ export default function LogInjectionPage() {
     navigate("/dashboard");
   }
 
+
   const shouldShowMealReminderPrompt =
     successLog?.insulin_type === "RAPID_ACTING" &&
     !mealReminderMessage &&
@@ -229,6 +208,7 @@ export default function LogInjectionPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 p-4 sm:p-6">
+
       <section className="mx-auto max-w-3xl">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Link
@@ -293,22 +273,20 @@ export default function LogInjectionPage() {
 
         {shouldShowMealReminderPrompt && (
           <div className="mt-6 rounded-2xl border border-sky-200 bg-sky-50 p-5">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-sky-950">
-                  Set meal reminder?
-                </h2>
+            <div>
+              <h2 className="text-lg font-semibold text-sky-950">
+                Set meal reminder?
+              </h2>
 
-                <p className="mt-2 text-sm leading-6 text-sky-800">
-                  This reminder is only for your personal routine. It is separate
-                  from duplicate-check logic.
-                </p>
+              <p className="mt-2 text-sm leading-6 text-sky-800">
+                This reminder is only for your personal routine. It is separate
+                from duplicate-check logic.
+              </p>
 
-                <p className="mt-1 text-xs text-sky-700">
-                  Personal routine reminder only. Follow your clinician&apos;s
-                  instructions.
-                </p>
-              </div>
+              <p className="mt-1 text-xs text-sky-700">
+                Personal routine reminder only. Follow your clinician&apos;s
+                instructions.
+              </p>
             </div>
 
             <div className="mt-4 space-y-3">
@@ -343,7 +321,7 @@ export default function LogInjectionPage() {
                     type="number"
                     min="1"
                     max="180"
-                    placeholder="Example: 1 for demo"
+                    placeholder="Enter minutes"
                   />
                 </div>
               )}
