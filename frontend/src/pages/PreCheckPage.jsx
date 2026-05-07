@@ -369,10 +369,14 @@ export default function PreCheckPage() {
               <div className="mt-5 flex flex-col gap-2 sm:flex-row">
                 <Link
                   to="/log-injection"
+                  state={{
+                    duplicateWarning: result,
+                    insulinType,
+                  }}
                   className="rounded-xl bg-[#D69E2E] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#B7791F]"
                 >
                   Continue if already completed
-                </Link>
+              </Link>
 
                 <Link
                   to="/history"

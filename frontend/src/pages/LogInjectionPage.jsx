@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { createInjectionLog } from "../features/injections/injectionApi";
 import { runPreCheck } from "../features/precheck/precheckApi";
 import {
@@ -136,9 +136,16 @@ function DetailItem({ label, value }) {
 
 export default function LogInjectionPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const incomingDuplicateWarning = location.state?.duplicateWarning || null;
+  const incomingInsulinType =
+    location.state?.insulinType ||
+    incomingDuplicateWarning?.last_injection?.insulin_type ||
+    "RAPID_ACTING";
 
   const [form, setForm] = useState({
-    insulin_type: "RAPID_ACTING",
+    insulin_type: incomingInsulinType,
     dose_units: "",
     injected_at: getCurrentDateTimeLocal(),
     recorded_by_name: "",
@@ -148,7 +155,9 @@ export default function LogInjectionPage() {
 
   const [error, setError] = useState("");
   const [successLog, setSuccessLog] = useState(null);
-  const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const [duplicateWarning, setDuplicateWarning] = useState(
+    incomingDuplicateWarning
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   const [mealReminderOffset, setMealReminderOffset] = useState("10");
@@ -290,15 +299,12 @@ export default function LogInjectionPage() {
             ← Back to dashboard
           </Link>
 
-          <div className="flex flex-col gap-2 sm:flex-row">
-
-            <Link
-              to="/history"
-              className="rounded-xl border border-[#B8C9D9] bg-white px-4 py-2 text-center text-sm font-semibold text-[#1F4E79] shadow-sm transition hover:bg-[#EAF2F8]"
-            >
-              View history
-            </Link>
-          </div>
+          <Link
+            to="/history"
+            className="w-fit rounded-xl border border-[#B8C9D9] bg-white px-4 py-2 text-center text-sm font-semibold text-[#1F4E79] shadow-sm transition hover:bg-[#EAF2F8]"
+          >
+            View history
+          </Link>
         </div>
 
         <div className="overflow-hidden rounded-[2rem] border border-[#D9E2EC] bg-white shadow-sm">
@@ -396,6 +402,7 @@ export default function LogInjectionPage() {
 
               <div className="mt-5 flex flex-col gap-2 sm:flex-row">
                 <button
+                  type="button"
                   onClick={handleGoToDashboard}
                   className="rounded-xl bg-[#2F855A] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#276749]"
                 >
@@ -513,7 +520,7 @@ export default function LogInjectionPage() {
           </div>
         )}
 
-        {duplicateWarning && (
+        {duplicateWarning && !successLog && (
           <div className="mt-6 overflow-hidden rounded-3xl border border-[#F6D365] bg-white shadow-sm">
             <div className="bg-[#FFF8E1] p-6">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#8A5A00]">
@@ -596,143 +603,145 @@ export default function LogInjectionPage() {
             onSubmit={handleSubmit}
             className="mt-6 rounded-3xl border border-[#D9E2EC] bg-white p-6 shadow-sm"
           >
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#627D98]">
-                Injection details
-              </p>
-
-              <h2 className="mt-1 text-2xl font-bold text-[#102A43]">
-                Completed injection log
-              </h2>
-            </div>
-
-            <span
-              className={`inline-flex w-fit rounded-full border px-3 py-1 text-xs font-semibold ${getInsulinTagStyle(
-                form.insulin_type
-              )}`}
-            >
-              {getInsulinTypeLabel(form.insulin_type)}
-            </span>
-          </div>
-
-          <div className="mt-6 grid gap-5">
-            <div>
-              <FieldLabel>Insulin type</FieldLabel>
-
-              <select
-                name="insulin_type"
-                value={form.insulin_type}
-                onChange={(event) => {
-                  handleChange(event);
-                  setDuplicateWarning(null);
-                  setError("");
-                }}
-                className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
-                required
-              >
-                <option value="RAPID_ACTING">
-                  Rapid-acting insulin (bolus)
-                </option>
-                <option value="LONG_ACTING">
-                  Long-acting insulin (basal)
-                </option>
-              </select>
-            </div>
-
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <FieldLabel>Dose units</FieldLabel>
+                <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#627D98]">
+                  Injection details
+                </p>
+
+                <h2 className="mt-1 text-2xl font-bold text-[#102A43]">
+                  Completed injection log
+                </h2>
+              </div>
+
+              <span
+                className={`inline-flex w-fit rounded-full border px-3 py-1 text-xs font-semibold ${getInsulinTagStyle(
+                  form.insulin_type
+                )}`}
+              >
+                {getInsulinTypeLabel(form.insulin_type)}
+              </span>
+            </div>
+
+            <div className="mt-6 grid gap-5">
+              <div>
+                <FieldLabel>Insulin type</FieldLabel>
+
+                <select
+                  name="insulin_type"
+                  value={form.insulin_type}
+                  onChange={(event) => {
+                    handleChange(event);
+                    setDuplicateWarning(null);
+                    setError("");
+                  }}
+                  className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
+                  required
+                >
+                  <option value="RAPID_ACTING">
+                    Rapid-acting insulin (bolus)
+                  </option>
+                  <option value="LONG_ACTING">
+                    Long-acting insulin (basal)
+                  </option>
+                </select>
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <FieldLabel>Dose units</FieldLabel>
+
+                  <input
+                    name="dose_units"
+                    value={form.dose_units}
+                    onChange={handleChange}
+                    className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
+                    type="number"
+                    min="1"
+                    placeholder="Example: 8"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <FieldLabel>Injection time</FieldLabel>
+
+                  <input
+                    name="injected_at"
+                    value={form.injected_at}
+                    onChange={handleChange}
+                    className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
+                    type="datetime-local"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <FieldLabel>Recorded by</FieldLabel>
 
                 <input
-                  name="dose_units"
-                  value={form.dose_units}
+                  name="recorded_by_name"
+                  value={form.recorded_by_name}
                   onChange={handleChange}
                   className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
-                  type="number"
-                  min="1"
-                  placeholder="Example: 8"
+                  type="text"
+                  placeholder="Example: John (self)"
                   required
                 />
               </div>
 
               <div>
-                <FieldLabel>Injection time</FieldLabel>
-
-                <input
-                  name="injected_at"
-                  value={form.injected_at}
-                  onChange={handleChange}
-                  className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
-                  type="datetime-local"
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <FieldLabel>Recorded by</FieldLabel>
-
-              <input
-                name="recorded_by_name"
-                value={form.recorded_by_name}
-                onChange={handleChange}
-                className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
-                type="text"
-                placeholder="Example: John (self) or Jane (caregiver)"
-                required
-              />
-            </div>
-
-            <div>
-              <FieldLabel>Notes</FieldLabel>
-
-              <textarea
-                name="notes"
-                value={form.notes}
-                onChange={handleChange}
-                className="mt-2 min-h-28 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
-                placeholder="Optional notes"
-              />
-            </div>
-
-            {duplicateWarning && (
-              <div>
-                <FieldLabel>Override reason</FieldLabel>
+                <FieldLabel>Notes</FieldLabel>
 
                 <textarea
-                  name="override_reason"
-                  value={form.override_reason}
+                  name="notes"
+                  value={form.notes}
                   onChange={handleChange}
-                  className="mt-2 min-h-28 w-full rounded-xl border border-[#F6D365] bg-[#FFF8E1] px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9A6B00] focus:border-[#D69E2E] focus:ring-4 focus:ring-[#FFF8E1]"
-                  placeholder="Example: I checked the previous log and this was a separate completed injection."
-                  required
+                  className="mt-2 min-h-28 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
+                  placeholder="Optional notes"
                 />
-
-                <p className="mt-2 text-xs leading-5 text-[#8A5A00]">
-                  Required because a possible duplicate was detected.
-                </p>
               </div>
-            )}
-          </div>
 
-          <div className="mt-6">
-            <SafetyNote />
-          </div>
+              {duplicateWarning && (
+                <div>
+                  <FieldLabel>Override reason</FieldLabel>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="mt-6 w-full rounded-xl bg-[#1F4E79] px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-[#173F63] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isLoading
-              ? "Checking..."
-              : duplicateWarning
-                ? "Save with override reason"
-                : "Check and save injection log"}
-          </button>
-        </form>
-      )}
+                  <textarea
+                    name="override_reason"
+                    value={form.override_reason}
+                    onChange={handleChange}
+                    className="mt-2 min-h-28 w-full rounded-xl border border-[#F6D365] bg-[#FFF8E1] px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9A6B00] focus:border-[#D69E2E] focus:ring-4 focus:ring-[#FFF8E1]"
+                    placeholder="Example: I checked the previous log and this was a separate completed injection."
+                    required
+                  />
+
+                  <p className="mt-2 text-xs leading-5 text-[#8A5A00]">
+                    Required because a possible duplicate was detected.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6">
+              <SafetyNote />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="mt-6 w-full rounded-xl bg-[#1F4E79] px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-[#173F63] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isLoading
+                ? duplicateWarning
+                  ? "Saving..."
+                  : "Checking..."
+                : duplicateWarning
+                  ? "Save with override reason"
+                  : "Check and save injection log"}
+            </button>
+          </form>
+        )}
       </section>
     </main>
   );
