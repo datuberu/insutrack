@@ -2,7 +2,6 @@
 __pycache__/
 *.pyc
 venv/
-.env
 
 # Django
 db.sqlite3
@@ -13,6 +12,12 @@ staticfiles/
 node_modules/
 dist/
 .env.local
+
+# Environment files
+.env
+*.env
+backend/.env
+frontend/.env
 
 # OS / editor
 .DS_Store

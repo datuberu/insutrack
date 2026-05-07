@@ -7,26 +7,39 @@ from datetime import timedelta
 from pathlib import Path
 
 import dj_database_url
+from dotenv import load_dotenv
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(BASE_DIR / ".env")
 
-def env_list(name, default):
+
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+
+    if value is None:
+        return default
+
+    return value.lower() in ["true", "1", "yes", "on"]
+
+
+def env_list(name, default=""):
     value = os.environ.get(name, default)
+
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
-SECRET_KEY = os.environ.get(
-    "SECRET_KEY",
-    "django-insecure-dev-key-change-this-in-production",
-)
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or os.environ.get("SECRET_KEY")
 
-DEBUG = os.environ.get("DEBUG", "True") == "True"
+if not SECRET_KEY:
+    raise RuntimeError("DJANGO_SECRET_KEY is not set.")
+
+DEBUG = env_bool("DJANGO_DEBUG", default=env_bool("DEBUG", default=False))
 
 ALLOWED_HOSTS = env_list(
-    "ALLOWED_HOSTS",
-    "localhost,127.0.0.1",
+    "DJANGO_ALLOWED_HOSTS",
+    os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1"),
 )
 
 
@@ -159,3 +172,15 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
+
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = "DENY"
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
