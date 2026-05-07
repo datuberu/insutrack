@@ -291,12 +291,6 @@ export default function LogInjectionPage() {
           </Link>
 
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Link
-              to="/pre-check"
-              className="rounded-xl bg-[#1F4E79] px-4 py-2 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-[#173F63]"
-            >
-              Run pre-check
-            </Link>
 
             <Link
               to="/history"
@@ -597,10 +591,11 @@ export default function LogInjectionPage() {
           </div>
         )}
 
-        <form
-          onSubmit={handleSubmit}
-          className="mt-6 rounded-3xl border border-[#D9E2EC] bg-white p-6 shadow-sm"
-        >
+        {!successLog && (
+          <form
+            onSubmit={handleSubmit}
+            className="mt-6 rounded-3xl border border-[#D9E2EC] bg-white p-6 shadow-sm"
+          >
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#627D98]">
@@ -737,6 +732,7 @@ export default function LogInjectionPage() {
                 : "Check and save injection log"}
           </button>
         </form>
+      )}
       </section>
     </main>
   );

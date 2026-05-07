@@ -140,14 +140,7 @@ function EmptyState() {
           to="/pre-check"
           className="rounded-xl bg-[#1F4E79] px-4 py-3 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-[#173F63]"
         >
-          Run pre-check
-        </Link>
-
-        <Link
-          to="/log-injection"
-          className="rounded-xl border border-[#B8C9D9] bg-white px-4 py-3 text-center text-sm font-semibold text-[#1F4E79] shadow-sm transition hover:bg-[#EAF2F8]"
-        >
-          Log completed injection
+          Check before next log
         </Link>
       </div>
     </div>
@@ -329,14 +322,7 @@ export default function HistoryPage() {
               to="/pre-check"
               className="rounded-xl bg-[#1F4E79] px-4 py-2 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-[#173F63]"
             >
-              Run pre-check
-            </Link>
-
-            <Link
-              to="/log-injection"
-              className="rounded-xl border border-[#B8C9D9] bg-white px-4 py-2 text-center text-sm font-semibold text-[#1F4E79] shadow-sm transition hover:bg-[#EAF2F8]"
-            >
-              Log injection
+              Check before next log
             </Link>
           </div>
         </div>
@@ -431,7 +417,7 @@ export default function HistoryPage() {
                 to="/pre-check"
                 className="text-sm font-semibold text-[#1F4E79] underline-offset-4 hover:underline"
               >
-                Check before next log →
+                Check before next log
               </Link>
             </div>
 

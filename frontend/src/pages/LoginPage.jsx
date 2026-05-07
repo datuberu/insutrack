@@ -80,7 +80,6 @@ export default function LoginPage() {
               </h1>
 
               <p className="mt-4 max-w-xl text-base leading-7 text-[#486581]">
-                Review recent records before logging another completed injection.
                 InsuTrack helps keep manual insulin routines clearer for users
                 and caregivers.
               </p>

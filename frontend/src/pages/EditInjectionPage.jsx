@@ -105,9 +105,7 @@ function DetailItem({ label, value }) {
         {label}
       </p>
 
-      <p className="mt-1 text-sm font-semibold text-[#102A43]">
-        {value}
-      </p>
+      <p className="mt-1 text-sm font-semibold text-[#102A43]">{value}</p>
     </div>
   );
 }
@@ -129,6 +127,8 @@ export default function EditInjectionPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+
+  const wasSavedWithDuplicateRisk = Boolean(originalLog?.duplicate_risk_flag);
 
   useEffect(() => {
     async function loadLog() {
@@ -177,7 +177,9 @@ export default function EditInjectionPage() {
         injected_at: new Date(form.injected_at).toISOString(),
         recorded_by_name: form.recorded_by_name.trim(),
         notes: form.notes.trim(),
-        override_reason: form.override_reason.trim(),
+        override_reason: wasSavedWithDuplicateRisk
+          ? form.override_reason.trim()
+          : "",
       };
 
       await updateInjectionLog(id, payload);
@@ -213,12 +215,6 @@ export default function EditInjectionPage() {
           </Link>
 
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Link
-              to="/pre-check"
-              className="rounded-xl border border-[#B8C9D9] bg-white px-4 py-2 text-center text-sm font-semibold text-[#1F4E79] shadow-sm transition hover:bg-[#EAF2F8]"
-            >
-              Run pre-check
-            </Link>
 
             <Link
               to="/dashboard"
@@ -243,7 +239,7 @@ export default function EditInjectionPage() {
 
                 <p className="mt-3 max-w-2xl text-base leading-7 text-[#486581]">
                   Update a previously recorded insulin log. Keep the history
-                  accurate so future pre-checks and reviews are easier to
+                  accurate so future pre-injection checks and reviews are easier to
                   understand.
                 </p>
               </div>
@@ -264,7 +260,8 @@ export default function EditInjectionPage() {
                 </div>
 
                 <p className="mt-3 text-sm leading-6 text-[#627D98]">
-                  Log ID: <span className="font-semibold text-[#102A43]">{id}</span>
+                  Log ID:{" "}
+                  <span className="font-semibold text-[#102A43]">{id}</span>
                 </p>
               </div>
             </div>
@@ -325,7 +322,7 @@ export default function EditInjectionPage() {
                 </h2>
               </div>
 
-              {originalLog.duplicate_risk_flag && (
+              {wasSavedWithDuplicateRisk && (
                 <span className="inline-flex w-fit rounded-full border border-[#F6D365] bg-[#FFF8E1] px-3 py-1 text-xs font-semibold text-[#8A5A00]">
                   Duplicate risk flagged
                 </span>
@@ -353,6 +350,35 @@ export default function EditInjectionPage() {
                 value={originalLog.recorded_by_name || "Unknown recorder"}
               />
             </div>
+          </div>
+        )}
+
+        {wasSavedWithDuplicateRisk && (
+          <div className="mt-6 rounded-3xl border border-[#F6D365] bg-[#FFF8E1] p-5 shadow-sm">
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#8A5A00]">
+              Duplicate warning details
+            </p>
+
+            <h2 className="mt-1 text-xl font-bold text-[#8A5A00]">
+              This log was saved with possible duplicate risk
+            </h2>
+
+            <p className="mt-3 text-sm leading-6 text-[#8A5A00]">
+              The reason field is shown because this specific record had a
+              duplicate warning when it was saved.
+            </p>
+
+            {originalLog?.override_reason && (
+              <div className="mt-4 rounded-2xl border border-[#F6D365] bg-white/70 p-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-[#8A5A00]">
+                  Saved reason
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
+                  {originalLog.override_reason}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -457,22 +483,27 @@ export default function EditInjectionPage() {
               />
             </div>
 
-            <div>
-              <FieldLabel>Override reason</FieldLabel>
+            {wasSavedWithDuplicateRisk && (
+              <div>
+                <FieldLabel>
+                  Reason this duplicate-warning log was saved
+                </FieldLabel>
 
-              <textarea
-                name="override_reason"
-                value={form.override_reason}
-                onChange={handleChange}
-                className="mt-2 min-h-28 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
-                placeholder="Optional unless this log was saved with duplicate risk."
-              />
+                <textarea
+                  name="override_reason"
+                  value={form.override_reason}
+                  onChange={handleChange}
+                  className="mt-2 min-h-28 w-full rounded-xl border border-[#F6D365] bg-[#FFF8E1] px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9A6B00] focus:border-[#D69E2E] focus:ring-4 focus:ring-[#FFF8E1]"
+                  placeholder="Example: I checked the previous log and this was a separate completed injection."
+                  required
+                />
 
-              <p className="mt-2 text-xs leading-5 text-[#627D98]">
-                Use this field to explain why a possible duplicate log was still
-                saved.
-              </p>
-            </div>
+                <p className="mt-2 text-xs leading-5 text-[#8A5A00]">
+                  Required because this saved record was marked with possible
+                  duplicate risk.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="mt-6">

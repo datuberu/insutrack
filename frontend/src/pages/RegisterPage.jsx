@@ -232,7 +232,7 @@ export default function RegisterPage() {
                       </p>
 
                       <p className="mt-2 text-sm leading-6 text-[#246B63]">
-                        Pre-check helps review whether a similar insulin type
+                        Pre-injection check helps review whether a similar insulin type
                         was logged recently.
                       </p>
                     </div>
