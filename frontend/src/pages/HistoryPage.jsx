@@ -412,13 +412,6 @@ export default function HistoryPage() {
                   Completed injection logs
                 </h2>
               </div>
-
-              <Link
-                to="/pre-check"
-                className="text-sm font-semibold text-[#1F4E79] underline-offset-4 hover:underline"
-              >
-                Check before next log
-              </Link>
             </div>
 
             {logs.length === 0 ? (
