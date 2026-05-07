@@ -679,7 +679,7 @@ export default function LogInjectionPage() {
                 onChange={handleChange}
                 className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
                 type="text"
-                placeholder="Example: Datu"
+                placeholder="Example: John (self) or Jane (caregiver)"
                 required
               />
             </div>
