@@ -58,7 +58,12 @@ export default function RegisterPage() {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
 
-    navigate("/login");
+    navigate("/login", {
+      state: {
+        registrationSuccess: true,
+        username: form.username,
+      },
+    });
   } catch {
     setError("Registration failed. Try another username or check your input.");
   } finally {

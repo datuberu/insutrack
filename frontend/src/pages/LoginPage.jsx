@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { loginUser } from "../features/auth/authApi";
 
 /*
@@ -28,11 +28,15 @@ import { loginUser } from "../features/auth/authApi";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const registrationSuccess = location.state?.registrationSuccess;
+  const registeredUsername = location.state?.username || "";
 
   const [form, setForm] = useState({
-    username: "",
-    password: "",
-  });
+  username: registeredUsername,
+  password: "",
+});
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -137,13 +141,23 @@ export default function LoginPage() {
           </div>
 
           <section className="rounded-[2rem] border border-[#D9E2EC] bg-white p-6 shadow-sm sm:p-8">
-            {error && (
-              <div className="mb-5 rounded-2xl border border-red-200 bg-[#FDECEC] p-4 text-sm leading-6 text-red-700">
-                {error}
+            {registrationSuccess && (
+              <div className="mb-5 rounded-2xl border border-[#B7E4C7] bg-[#E6F6EC] p-4 text-sm leading-6 text-[#2F855A]">
+                <p className="font-bold">Account created successfully.</p>
+                <p className="mt-1">
+                  Please log in with your username and password to continue.
+            </p>
               </div>
-            )}
+            </div>
+          )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+          {error && (
+            <div className="mb-5 rounded-2xl border border-red-200 bg-[#FDECEC] p-4 text-sm leading-6 text-red-700">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-[#102A43]">
                   Username
