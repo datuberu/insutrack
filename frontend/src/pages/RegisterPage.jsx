@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerUser, loginUser } from "../features/auth/authApi";
+import { registerUser } from "../features/auth/authApi";
 
 /*
   InsuTrack UI color system
@@ -48,28 +48,23 @@ export default function RegisterPage() {
   }
 
   async function handleSubmit(event) {
-    event.preventDefault();
-    setError("");
-    setIsLoading(true);
+  event.preventDefault();
+  setError("");
+  setIsLoading(true);
 
-    try {
-      await registerUser(form);
+  try {
+    await registerUser(form);
 
-      const loginData = await loginUser({
-        username: form.username,
-        password: form.password,
-      });
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
 
-      localStorage.setItem("access_token", loginData.access);
-      localStorage.setItem("refresh_token", loginData.refresh);
-
-      navigate("/dashboard");
-    } catch {
-      setError("Registration failed. Try another username or check your input.");
-    } finally {
-      setIsLoading(false);
-    }
+    navigate("/login");
+  } catch {
+    setError("Registration failed. Try another username or check your input.");
+  } finally {
+    setIsLoading(false);
   }
+}
 
   return (
     <main className="min-h-screen bg-[#F7FAFC] px-4 py-8 text-[#102A43]">
