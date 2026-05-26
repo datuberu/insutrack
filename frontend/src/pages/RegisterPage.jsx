@@ -48,28 +48,35 @@ export default function RegisterPage() {
   }
 
   async function handleSubmit(event) {
-  event.preventDefault();
-  setError("");
-  setIsLoading(true);
+    event.preventDefault();
+    setError("");
+    setIsLoading(true);
 
-  try {
-    await registerUser(form);
+    try {
+      await registerUser(form);
 
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
 
-    navigate("/login", {
-      state: {
-        registrationSuccess: true,
-        username: form.username,
-      },
-    });
-  } catch {
-    setError("Registration failed. Try another username or check your input.");
-  } finally {
-    setIsLoading(false);
+      sessionStorage.setItem("registration_success", "true");
+      sessionStorage.setItem("registered_username", form.username);
+
+      navigate(
+        `/login?registered=1&username=${encodeURIComponent(form.username)}`,
+        {
+          replace: true,
+          state: {
+            registrationSuccess: true,
+            username: form.username,
+          },
+        }
+      );
+    } catch {
+      setError("Registration failed. Try another username or check your input.");
+    } finally {
+      setIsLoading(false);
+    }
   }
-}
 
   return (
     <main className="min-h-screen bg-[#F7FAFC] px-4 py-8 text-[#102A43]">
@@ -232,8 +239,8 @@ export default function RegisterPage() {
                       </p>
 
                       <p className="mt-2 text-sm leading-6 text-[#246B63]">
-                        Pre-injection check helps review whether a similar insulin type
-                        was logged recently.
+                        Pre-injection check helps review whether a similar
+                        insulin type was logged recently.
                       </p>
                     </div>
                   </div>

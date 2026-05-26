@@ -30,13 +30,33 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const registrationSuccess = location.state?.registrationSuccess;
-  const registeredUsername = location.state?.username || "";
+  const queryParams = new URLSearchParams(location.search);
+
+  const registrationSuccessFromUrl = queryParams.get("registered") === "1";
+  const usernameFromUrl = queryParams.get("username") || "";
+
+  const registrationSuccessFromState = Boolean(
+    location.state?.registrationSuccess
+  );
+  const usernameFromState = location.state?.username || "";
+
+  const registrationSuccessFromStorage =
+    sessionStorage.getItem("registration_success") === "true";
+  const usernameFromStorage =
+    sessionStorage.getItem("registered_username") || "";
+
+  const registrationSuccess =
+    registrationSuccessFromUrl ||
+    registrationSuccessFromState ||
+    registrationSuccessFromStorage;
+
+  const registeredUsername =
+    usernameFromUrl || usernameFromState || usernameFromStorage;
 
   const [form, setForm] = useState({
-  username: registeredUsername,
-  password: "",
-});
+    username: registeredUsername,
+    password: "",
+  });
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -60,6 +80,9 @@ export default function LoginPage() {
 
       localStorage.setItem("access_token", data.access);
       localStorage.setItem("refresh_token", data.refresh);
+
+      sessionStorage.removeItem("registration_success");
+      sessionStorage.removeItem("registered_username");
 
       navigate("/dashboard");
     } catch {
@@ -144,19 +167,20 @@ export default function LoginPage() {
             {registrationSuccess && (
               <div className="mb-5 rounded-2xl border border-[#B7E4C7] bg-[#E6F6EC] p-4 text-sm leading-6 text-[#2F855A]">
                 <p className="font-bold">Account created successfully.</p>
+
                 <p className="mt-1">
                   Please log in with your username and password to continue.
-            </p>
-            </div>
-          )}
+                </p>
+              </div>
+            )}
 
-          {error && (
-            <div className="mb-5 rounded-2xl border border-red-200 bg-[#FDECEC] p-4 text-sm leading-6 text-red-700">
-              {error}
-            </div>
-          )}
+            {error && (
+              <div className="mb-5 rounded-2xl border border-red-200 bg-[#FDECEC] p-4 text-sm leading-6 text-red-700">
+                {error}
+              </div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-[#102A43]">
                   Username
