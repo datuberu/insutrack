@@ -272,7 +272,7 @@ export default function PreCheckPage() {
                 <span className="font-bold text-[#102A43]">
                   {selectedInsulinLabel}
                 </span>{" "}
-                inside the duplicate-check window. This is not medical advice.
+                inside the safety-check time window. This is not medical advice.
               </div>
 
               <div className="mt-5 flex flex-col gap-2 sm:flex-row">
@@ -302,7 +302,7 @@ export default function PreCheckPage() {
               </p>
 
               <h2 className="mt-2 text-2xl font-bold text-[#8A5A00]">
-                Possible duplicate detected
+                Injection time is too close to a recent log
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-[#8A5A00]">
@@ -361,9 +361,8 @@ export default function PreCheckPage() {
 
               <div className="mt-5 rounded-2xl border border-[#F6D365] bg-[#FFF8E1] p-5 text-sm leading-6 text-[#8A5A00]">
                 Review your actual routine carefully before continuing.
-                InsuTrack does not decide whether you should inject. If you
-                already completed another injection and need to save it, the log
-                page will require an override reason.
+                InsuTrack does not decide whether you should inject. If you already completed another injection and need to save it, the log
+                page will require a reason because the injection time is close to a previous log.
               </div>
 
               <div className="mt-5 flex flex-col gap-2 sm:flex-row">

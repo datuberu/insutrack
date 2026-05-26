@@ -324,7 +324,7 @@ export default function EditInjectionPage() {
 
               {wasSavedWithDuplicateRisk && (
                 <span className="inline-flex w-fit rounded-full border border-[#F6D365] bg-[#FFF8E1] px-3 py-1 text-xs font-semibold text-[#8A5A00]">
-                  Duplicate risk flagged
+                  Injection time too close
                 </span>
               )}
             </div>
@@ -356,16 +356,16 @@ export default function EditInjectionPage() {
         {wasSavedWithDuplicateRisk && (
           <div className="mt-6 rounded-3xl border border-[#F6D365] bg-[#FFF8E1] p-5 shadow-sm">
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#8A5A00]">
-              Duplicate warning details
+              Close injection-time warning details
             </p>
 
             <h2 className="mt-1 text-xl font-bold text-[#8A5A00]">
-              This log was saved with possible duplicate risk
+              This log was saved even though the injection time was too close to a previous log
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-[#8A5A00]">
-              The reason field is shown because this specific record had a
-              duplicate warning when it was saved.
+              The reason field is shown because this specific record had a close injection-time
+              warning when it was saved.
             </p>
 
             {originalLog?.override_reason && (
@@ -486,7 +486,7 @@ export default function EditInjectionPage() {
             {wasSavedWithDuplicateRisk && (
               <div>
                 <FieldLabel>
-                  Reason this duplicate-warning log was saved
+                  Reason this close injection-time warning log was saved
                 </FieldLabel>
 
                 <textarea
@@ -499,8 +499,7 @@ export default function EditInjectionPage() {
                 />
 
                 <p className="mt-2 text-xs leading-5 text-[#8A5A00]">
-                  Required because this saved record was marked with possible
-                  duplicate risk.
+                  Required because this saved record was marked as having an injection time too close to a previous log.
                 </p>
               </div>
             )}

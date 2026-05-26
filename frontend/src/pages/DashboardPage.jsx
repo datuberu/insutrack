@@ -267,7 +267,7 @@ export default function DashboardPage() {
                 to="/history"
                 eyebrow="Review records"
                 title="History"
-                description="View, edit, or delete saved injection logs and review duplicate warning details."
+                description="View, edit, or delete saved injection logs and review close injection-time warning details."
                 actionLabel="View history"
               />
             </div>
@@ -292,7 +292,7 @@ export default function DashboardPage() {
           <WorkflowStep
             number="3"
             title="Need details?"
-            description="Use history for the full timeline, edits, duplicate flags, and override reasons."
+            description="Use history for the full timeline, edits, close injection-time flags, and override reasons."
             variant="warning"
           />
         </div>

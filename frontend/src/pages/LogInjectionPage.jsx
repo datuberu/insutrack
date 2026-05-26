@@ -201,7 +201,7 @@ export default function LogInjectionPage() {
 
       if (duplicateWarning && !form.override_reason.trim()) {
         setError(
-          "Please provide an override reason before saving this possible duplicate log."
+          "Please provide a reason before saving this log because the injection time is too close to a previous log."
         );
         setIsLoading(false);
         return;
@@ -319,8 +319,8 @@ export default function LogInjectionPage() {
 
             <p className="mt-3 max-w-2xl text-base leading-7 text-[#486581]">
               Record an injection only after it has actually been completed. The
-              app checks recent logs first and asks for an override reason if a
-              possible duplicate is found.
+              app checks recent logs first and asks for a reason if the injection time
+              is too close to a previous log.
             </p>
 
             <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -351,7 +351,7 @@ export default function LogInjectionPage() {
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
-                  If duplicate risk appears, provide an override reason before
+                  If the injection time is too close, provide a reason before
                   saving.
                 </p>
               </div>
@@ -395,8 +395,8 @@ export default function LogInjectionPage() {
             <div className="p-6">
               {successLog.duplicate_risk_flag && (
                 <div className="rounded-2xl border border-[#F6D365] bg-[#FFF8E1] p-5 text-sm leading-6 text-[#8A5A00]">
-                  This log was saved with possible duplicate risk. The override
-                  reason is saved in history.
+                  This log was saved even though the injection time was too close to a previous log.
+                  The reason is saved in history.
                 </div>
               )}
 
@@ -528,7 +528,7 @@ export default function LogInjectionPage() {
               </p>
 
               <h2 className="mt-2 text-2xl font-bold text-[#8A5A00]">
-                Possible duplicate detected
+                Injection time is too close to a recent log
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-[#8A5A00]">
@@ -717,7 +717,7 @@ export default function LogInjectionPage() {
                   />
 
                   <p className="mt-2 text-xs leading-5 text-[#8A5A00]">
-                    Required because a possible duplicate was detected.
+                    Required because the injection time is too close to a previous log.
                   </p>
                 </div>
               )}

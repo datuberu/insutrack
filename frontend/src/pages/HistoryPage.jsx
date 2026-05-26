@@ -163,7 +163,7 @@ function HistoryLogCard({ log, isDeleting, onDelete }) {
 
             {log.duplicate_risk_flag && (
               <span className="inline-flex rounded-full border border-[#F6D365] bg-[#FFF8E1] px-3 py-1 text-xs font-semibold text-[#8A5A00]">
-                Duplicate risk flagged
+                Injection time too close
               </span>
             )}
           </div>
@@ -208,8 +208,8 @@ function HistoryLogCard({ log, isDeleting, onDelete }) {
           label="Status"
           value={
             log.duplicate_risk_flag
-              ? "Saved with duplicate warning"
-              : "Saved without duplicate warning"
+              ? "Saved with close injection-time warning"
+              : "Saved without close injection-time warning"
           }
         />
       </div>
@@ -226,8 +226,8 @@ function HistoryLogCard({ log, isDeleting, onDelete }) {
 
       {log.duplicate_risk_flag && (
         <div className="mt-4 rounded-2xl border border-[#F6D365] bg-[#FFF8E1] p-4 text-sm leading-6 text-[#8A5A00]">
-          Possible duplicate risk was flagged for this log. Review the injection
-          details carefully when using this record as a reference.
+          This log was flagged because the injection time was too close to a previous log.
+          Review the injection details carefully when using this record as a reference.
         </div>
       )}
 
@@ -384,12 +384,12 @@ export default function HistoryPage() {
 
               <div className="rounded-3xl border border-[#F6D365] bg-[#FFF8E1] p-5">
                 <p className="text-sm font-bold text-[#8A5A00]">
-                  Watch duplicate flags
+                  Watch close-time flags
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
-                  Logs with duplicate warnings include their saved override
-                  reason when available.
+                  Logs with close injection-time warnings include their saved reason
+                  when available.
                 </p>
               </div>
             </div>
