@@ -147,7 +147,6 @@ export default function LoginPage() {
                 <p className="mt-1">
                   Please log in with your username and password to continue.
             </p>
-              </div>
             </div>
           )}
 
