@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { registerUser } from "../features/auth/authApi";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+import { useLanguage } from "../i18n/LanguageContext";
 
 /*
   InsuTrack UI color system
@@ -28,6 +30,11 @@ import { registerUser } from "../features/auth/authApi";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  function text(key, fallback) {
+    return t?.[key] || fallback;
+  }
 
   const [form, setForm] = useState({
     username: "",
@@ -72,7 +79,12 @@ export default function RegisterPage() {
         }
       );
     } catch {
-      setError("Registration failed. Try another username or check your input.");
+      setError(
+        text(
+          "registrationFailed",
+          "Registration failed. Try another username or check your input."
+        )
+      );
     } finally {
       setIsLoading(false);
     }
@@ -83,17 +95,23 @@ export default function RegisterPage() {
       <section className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center gap-8 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="mx-auto w-full max-w-md lg:order-1">
           <div className="mb-5 text-center lg:text-left">
+            <div className="mb-4 flex justify-center lg:hidden">
+              <LanguageSwitcher />
+            </div>
+
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#1F4E79]">
-              InsuTrack
+              {text("appName", "InsuTrack")}
             </p>
 
             <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#102A43]">
-              Create your account
+              {text("registerTitle", "Create your account")}
             </h1>
 
             <p className="mt-2 text-sm leading-6 text-[#627D98]">
-              Start logging completed injections and reviewing recent records
-              with a safety-first workflow.
+              {text(
+                "registerSubtitle",
+                "Start logging completed injections and reviewing recent records with a safety-first workflow."
+              )}
             </p>
           </div>
 
@@ -107,7 +125,7 @@ export default function RegisterPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-[#102A43]">
-                  Username
+                  {text("username", "Username")}
                 </label>
 
                 <input
@@ -116,7 +134,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
                   type="text"
-                  placeholder="Choose username"
+                  placeholder={text("chooseUsername", "Choose username")}
                   autoComplete="username"
                   required
                 />
@@ -124,7 +142,7 @@ export default function RegisterPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-[#102A43]">
-                  Email address
+                  {text("email", "Email address")}
                 </label>
 
                 <input
@@ -133,14 +151,14 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
                   type="email"
-                  placeholder="Enter email address"
+                  placeholder={text("enterEmail", "Enter email address")}
                   autoComplete="email"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-[#102A43]">
-                  Password
+                  {text("password", "Password")}
                 </label>
 
                 <input
@@ -149,13 +167,16 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
                   type="password"
-                  placeholder="Create password"
+                  placeholder={text("createPassword", "Create password")}
                   autoComplete="new-password"
                   required
                 />
 
                 <p className="mt-2 text-xs leading-5 text-[#627D98]">
-                  Use a password you can remember. Keep your login private.
+                  {text(
+                    "passwordHelp",
+                    "Use a password you can remember. Keep your login private."
+                  )}
                 </p>
               </div>
 
@@ -164,28 +185,32 @@ export default function RegisterPage() {
                 disabled={isLoading}
                 className="w-full rounded-xl bg-[#1F4E79] px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-[#173F63] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isLoading ? "Creating account..." : "Create account"}
+                {isLoading
+                  ? text("creatingAccount", "Creating account...")
+                  : text("createAccount", "Create account")}
               </button>
             </form>
 
             <div className="mt-6 rounded-2xl border border-[#F6D365] bg-[#FFF8E1] p-4">
               <p className="text-xs font-bold uppercase tracking-wide text-[#8A5A00]">
-                Safety note
+                {text("safetyNote", "Safety note")}
               </p>
 
               <p className="mt-1 text-sm leading-6 text-[#8A5A00]">
-                InsuTrack is a logging and routine-check tool only. Follow your
-                clinician&apos;s instructions.
+                {text(
+                  "safetyNoteText",
+                  "InsuTrack is a logging and routine-check tool only. Follow your clinician's instructions."
+                )}
               </p>
             </div>
 
             <p className="mt-6 text-center text-sm text-[#627D98]">
-              Already have an account?{" "}
+              {text("alreadyHaveAccount", "Already have an account?")}{" "}
               <Link
                 to="/login"
                 className="font-semibold text-[#1F4E79] underline-offset-4 hover:underline"
               >
-                Login
+                {text("login", "Login")}
               </Link>
             </p>
           </section>
@@ -194,17 +219,26 @@ export default function RegisterPage() {
         <div className="hidden lg:order-2 lg:block">
           <div className="overflow-hidden rounded-[2rem] border border-[#D9E2EC] bg-white shadow-sm">
             <div className="bg-gradient-to-br from-[#EAF2F8] via-white to-[#E8F7F5] p-8">
-              <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#1F4E79]">
-                Safety-first workflow
-              </p>
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#1F4E79]">
+                  {text("safetyFirstWorkflow", "Safety-first workflow")}
+                </p>
+
+                <LanguageSwitcher />
+              </div>
 
               <h2 className="mt-4 max-w-xl text-4xl font-bold tracking-tight text-[#102A43]">
-                Built for clear manual insulin record keeping.
+                {text(
+                  "registerHeroTitle",
+                  "Built for clear manual insulin record keeping."
+                )}
               </h2>
 
               <p className="mt-4 max-w-xl text-base leading-7 text-[#486581]">
-                InsuTrack helps users and caregivers review recent injection
-                records before saving another completed log.
+                {text(
+                  "registerHeroSubtitle",
+                  "InsuTrack helps users and caregivers review recent injection records before saving another completed log."
+                )}
               </p>
 
               <div className="mt-8 grid gap-4">
@@ -216,12 +250,14 @@ export default function RegisterPage() {
 
                     <div>
                       <p className="text-sm font-bold text-[#1F4E79]">
-                        Register and login
+                        {text("registerAndLogin", "Register and login")}
                       </p>
 
                       <p className="mt-2 text-sm leading-6 text-[#627D98]">
-                        Each user can access their own protected dashboard and
-                        saved injection logs.
+                        {text(
+                          "registerAndLoginText",
+                          "Each user can access their own protected dashboard and saved injection logs."
+                        )}
                       </p>
                     </div>
                   </div>
@@ -235,12 +271,14 @@ export default function RegisterPage() {
 
                     <div>
                       <p className="text-sm font-bold text-[#24786E]">
-                        Check before logging
+                        {text("checkBeforeLogging", "Check before logging")}
                       </p>
 
                       <p className="mt-2 text-sm leading-6 text-[#246B63]">
-                        Pre-injection check helps review whether a similar
-                        insulin type was logged recently.
+                        {text(
+                          "checkBeforeLoggingText",
+                          "Pre-injection check helps review whether a similar insulin type was logged recently."
+                        )}
                       </p>
                     </div>
                   </div>
@@ -254,12 +292,17 @@ export default function RegisterPage() {
 
                     <div>
                       <p className="text-sm font-bold text-[#8A5A00]">
-                        Record only completed injections
+                        {text(
+                          "recordOnlyCompleted",
+                          "Record only completed injections"
+                        )}
                       </p>
 
                       <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
-                        The app supports logging and routine checks, not medical
-                        dose decisions.
+                        {text(
+                          "recordOnlyCompletedText",
+                          "The app supports logging and routine checks, not medical dose decisions."
+                        )}
                       </p>
                     </div>
                   </div>

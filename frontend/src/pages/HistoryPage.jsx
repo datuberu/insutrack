@@ -4,6 +4,8 @@ import {
   getInjectionLogs,
   deleteInjectionLog,
 } from "../features/injections/injectionApi";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+import { useLanguage } from "../i18n/LanguageContext";
 
 /*
   InsuTrack UI color system
@@ -35,22 +37,28 @@ import {
   Long tag: #7C3AED / #EDE9FE
 */
 
-function formatDateTime(value) {
-  if (!value) return "No time recorded";
+function formatDateTime(value, language) {
+  if (!value) {
+    return language === "id" ? "Tidak ada waktu tercatat" : "No time recorded";
+  }
 
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(language === "id" ? "id-ID" : "en", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
 }
 
-function getInsulinTypeLabel(insulinType) {
+function getInsulinTypeLabel(insulinType, language) {
   if (insulinType === "RAPID_ACTING") {
-    return "Rapid-acting insulin (bolus)";
+    return language === "id"
+      ? "Insulin kerja cepat (bolus)"
+      : "Rapid-acting insulin (bolus)";
   }
 
   if (insulinType === "LONG_ACTING") {
-    return "Long-acting insulin (basal)";
+    return language === "id"
+      ? "Insulin kerja panjang (basal)"
+      : "Long-acting insulin (basal)";
   }
 
   return "Insulin";
@@ -80,32 +88,35 @@ function DetailItem({ label, value }) {
   );
 }
 
-function SafetyNote() {
+function SafetyNote({ text }) {
   return (
     <div className="rounded-3xl border border-[#F6D365] bg-[#FFF8E1] p-5">
-      <h2 className="font-bold text-[#8A5A00]">Safety note</h2>
+      <h2 className="font-bold text-[#8A5A00]">
+        {text("safetyNote", "Safety note")}
+      </h2>
 
       <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
-        InsuTrack is a logging and routine-check tool only. It does not decide
-        whether you should inject, calculate doses, or provide medical advice.
-        Follow your clinician&apos;s instructions.
+        {text(
+          "fullSafetyNoteText",
+          "InsuTrack is a logging and routine-check tool only. It does not decide whether you should inject, calculate doses, or provide medical advice. Follow your clinician's instructions."
+        )}
       </p>
     </div>
   );
 }
 
-function LoadingState() {
+function LoadingState({ text }) {
   return (
     <div className="mt-6 rounded-3xl border border-[#D9E2EC] bg-white p-5 text-[#627D98] shadow-sm">
-      Loading injection history...
+      {text("loadingInjectionHistory", "Loading injection history...")}
     </div>
   );
 }
 
-function ErrorState({ error }) {
+function ErrorState({ error, text }) {
   return (
     <div className="mt-6 rounded-3xl border border-red-200 bg-[#FDECEC] p-5 text-red-700">
-      <h2 className="font-bold">History error</h2>
+      <h2 className="font-bold">{text("historyError", "History error")}</h2>
 
       <p className="mt-2 text-sm leading-6">{error}</p>
 
@@ -113,13 +124,13 @@ function ErrorState({ error }) {
         to="/login"
         className="mt-4 inline-flex rounded-xl bg-red-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-800"
       >
-        Go to login
+        {text("goToLogin", "Go to login")}
       </Link>
     </div>
   );
 }
 
-function EmptyState() {
+function EmptyState({ text }) {
   return (
     <div className="rounded-3xl border border-dashed border-[#C9D8E6] bg-[#F7FAFC] p-6 text-center">
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EAF2F8] text-xl">
@@ -127,12 +138,14 @@ function EmptyState() {
       </div>
 
       <h2 className="mt-4 text-lg font-bold text-[#102A43]">
-        No injection logs yet
+        {text("noInjectionLogsYet", "No injection logs yet")}
       </h2>
 
       <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#627D98]">
-        After you record a completed injection, it will appear here for review,
-        editing, or deletion.
+        {text(
+          "noInjectionLogsYetText",
+          "After you record a completed injection, it will appear here for review, editing, or deletion."
+        )}
       </p>
 
       <div className="mt-5 flex flex-col justify-center gap-2 sm:flex-row">
@@ -140,14 +153,14 @@ function EmptyState() {
           to="/pre-check"
           className="rounded-xl bg-[#1F4E79] px-4 py-3 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-[#173F63]"
         >
-          Check before next log
+          {text("checkBeforeNextLog", "Check before next log")}
         </Link>
       </div>
     </div>
   );
 }
 
-function HistoryLogCard({ log, isDeleting, onDelete }) {
+function HistoryLogCard({ log, isDeleting, onDelete, text, language }) {
   return (
     <article className="rounded-3xl border border-[#D9E2EC] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -158,58 +171,70 @@ function HistoryLogCard({ log, isDeleting, onDelete }) {
                 log.insulin_type
               )}`}
             >
-              {getInsulinTypeLabel(log.insulin_type)}
+              {getInsulinTypeLabel(log.insulin_type, language)}
             </span>
 
             {log.duplicate_risk_flag && (
               <span className="inline-flex rounded-full border border-[#F6D365] bg-[#FFF8E1] px-3 py-1 text-xs font-semibold text-[#8A5A00]">
-                Injection time too close
+                {text("injectionTimeTooClose", "Injection time too close")}
               </span>
             )}
           </div>
 
           <h2 className="mt-4 text-xl font-bold text-[#102A43]">
-            {log.dose_units} units
+            {log.dose_units} {text("units", "units")}
           </h2>
 
           <p className="mt-1 text-sm leading-6 text-[#627D98]">
-            Recorded by{" "}
+            {text("recordedBy", "Recorded by")}{" "}
             <span className="font-semibold text-[#102A43]">
-              {log.recorded_by_name || "Unknown recorder"}
+              {log.recorded_by_name ||
+                text("unknownRecorder", "Unknown recorder")}
             </span>
           </p>
         </div>
 
         <div className="rounded-2xl bg-[#F7FAFC] px-4 py-3 text-left lg:min-w-56">
           <p className="text-xs font-bold uppercase tracking-wide text-[#627D98]">
-            Injected at
+            {text("injectedAt", "Injected at")}
           </p>
 
           <p className="mt-1 text-sm font-semibold text-[#102A43]">
-            {formatDateTime(log.injected_at)}
+            {formatDateTime(log.injected_at, language)}
           </p>
         </div>
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <DetailItem label="Dose" value={`${log.dose_units} units`} />
-
         <DetailItem
-          label="Injection time"
-          value={formatDateTime(log.injected_at)}
+          label={text("dose", "Dose")}
+          value={`${log.dose_units} ${text("units", "units")}`}
         />
 
         <DetailItem
-          label="Recorded by"
-          value={log.recorded_by_name || "Unknown recorder"}
+          label={text("injectionTime", "Injection time")}
+          value={formatDateTime(log.injected_at, language)}
         />
 
         <DetailItem
-          label="Status"
+          label={text("recordedBy", "Recorded by")}
+          value={
+            log.recorded_by_name || text("unknownRecorder", "Unknown recorder")
+          }
+        />
+
+        <DetailItem
+          label={text("status", "Status")}
           value={
             log.duplicate_risk_flag
-              ? "Saved with close injection-time warning"
-              : "Saved without close injection-time warning"
+              ? text(
+                  "savedWithCloseInjectionTimeWarning",
+                  "Saved with close injection-time warning"
+                )
+              : text(
+                  "savedWithoutCloseInjectionTimeWarning",
+                  "Saved without close injection-time warning"
+                )
           }
         />
       </div>
@@ -217,7 +242,7 @@ function HistoryLogCard({ log, isDeleting, onDelete }) {
       {log.notes && (
         <div className="mt-4 rounded-2xl border border-[#D9E2EC] bg-[#F7FAFC] p-4">
           <p className="text-xs font-bold uppercase tracking-wide text-[#627D98]">
-            Notes
+            {text("notes", "Notes")}
           </p>
 
           <p className="mt-2 text-sm leading-6 text-[#486581]">{log.notes}</p>
@@ -226,15 +251,17 @@ function HistoryLogCard({ log, isDeleting, onDelete }) {
 
       {log.duplicate_risk_flag && (
         <div className="mt-4 rounded-2xl border border-[#F6D365] bg-[#FFF8E1] p-4 text-sm leading-6 text-[#8A5A00]">
-          This log was flagged because the injection time was too close to a previous log.
-          Review the injection details carefully when using this record as a reference.
+          {text(
+            "closeInjectionTimeFlagExplanation",
+            "This log was flagged because the injection time was too close to a previous log. Review the injection details carefully when using this record as a reference."
+          )}
         </div>
       )}
 
       {log.override_reason && (
         <div className="mt-4 rounded-2xl border border-[#BFE7E1] bg-[#E8F7F5] p-4">
           <p className="text-xs font-bold uppercase tracking-wide text-[#24786E]">
-            Override reason
+            {text("savedReason", "Saved reason")}
           </p>
 
           <p className="mt-2 text-sm leading-6 text-[#246B63]">
@@ -248,7 +275,7 @@ function HistoryLogCard({ log, isDeleting, onDelete }) {
           to={`/edit-injection/${log.id}`}
           className="rounded-xl border border-[#B8C9D9] bg-white px-4 py-2 text-center text-sm font-semibold text-[#1F4E79] shadow-sm transition hover:bg-[#EAF2F8]"
         >
-          Edit log
+          {text("editLog", "Edit log")}
         </Link>
 
         <button
@@ -257,7 +284,9 @@ function HistoryLogCard({ log, isDeleting, onDelete }) {
           disabled={isDeleting}
           className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-700 shadow-sm transition hover:bg-[#FDECEC] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isDeleting ? "Deleting..." : "Delete"}
+          {isDeleting
+            ? text("deleting", "Deleting...")
+            : text("delete", "Delete")}
         </button>
       </div>
     </article>
@@ -265,6 +294,12 @@ function HistoryLogCard({ log, isDeleting, onDelete }) {
 }
 
 export default function HistoryPage() {
+  const { t, language } = useLanguage();
+
+  function text(key, fallback) {
+    return t?.[key] || fallback;
+  }
+
   const [logs, setLogs] = useState([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -276,17 +311,22 @@ export default function HistoryPage() {
         const data = await getInjectionLogs();
         setLogs(data);
       } catch {
-        setError("Could not load injection history. Please login again.");
+        setError(
+          t?.historyLoadError ||
+            "Could not load injection history. Please login again."
+        );
       } finally {
         setIsLoading(false);
       }
     }
 
     loadLogs();
-  }, []);
+  }, [t]);
 
   async function handleDelete(id) {
-    const confirmed = window.confirm("Delete this injection log?");
+    const confirmed = window.confirm(
+      text("deleteInjectionLogConfirm", "Delete this injection log?")
+    );
 
     if (!confirmed) return;
 
@@ -300,7 +340,9 @@ export default function HistoryPage() {
         currentLogs.filter((currentLog) => currentLog.id !== id)
       );
     } catch {
-      setError("Could not delete this injection log.");
+      setError(
+        text("deleteInjectionLogError", "Could not delete this injection log.")
+      );
     } finally {
       setIsDeletingId(null);
     }
@@ -314,15 +356,17 @@ export default function HistoryPage() {
             to="/dashboard"
             className="text-sm font-semibold text-[#1F4E79] underline-offset-4 hover:underline"
           >
-            ← Back to dashboard
+            ← {text("backToDashboard", "Back to dashboard")}
           </Link>
 
           <div className="flex flex-col gap-2 sm:flex-row">
+            <LanguageSwitcher />
+
             <Link
               to="/pre-check"
               className="rounded-xl bg-[#1F4E79] px-4 py-2 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-[#173F63]"
             >
-              Check before next log
+              {text("checkBeforeNextLog", "Check before next log")}
             </Link>
           </div>
         </div>
@@ -332,23 +376,24 @@ export default function HistoryPage() {
             <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
               <div className="max-w-3xl">
                 <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#1F4E79]">
-                  InsuTrack
+                  {text("appName", "InsuTrack")}
                 </p>
 
                 <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#102A43] sm:text-4xl">
-                  Injection history
+                  {text("injectionHistory", "Injection history")}
                 </h1>
 
                 <p className="mt-3 max-w-2xl text-base leading-7 text-[#486581]">
-                  Review, edit, or delete previously recorded insulin logs. Use
-                  this page as a reference before logging another completed
-                  injection.
+                  {text(
+                    "injectionHistorySubtitle",
+                    "Review, edit, or delete previously recorded insulin logs. Use this page as a reference before logging another completed injection."
+                  )}
                 </p>
               </div>
 
               <div className="rounded-3xl border border-[#B8C9D9] bg-white/80 p-5 lg:min-w-56">
                 <p className="text-sm font-bold text-[#1F4E79]">
-                  Saved records
+                  {text("savedRecords", "Saved records")}
                 </p>
 
                 <p className="mt-2 text-3xl font-bold text-[#102A43]">
@@ -356,7 +401,10 @@ export default function HistoryPage() {
                 </p>
 
                 <p className="mt-1 text-sm leading-6 text-[#627D98]">
-                  Total injection logs in this account.
+                  {text(
+                    "totalInjectionLogs",
+                    "Total injection logs in this account."
+                  )}
                 </p>
               </div>
             </div>
@@ -364,58 +412,66 @@ export default function HistoryPage() {
             <div className="mt-7 grid gap-4 md:grid-cols-3">
               <div className="rounded-3xl border border-[#B8C9D9] bg-white/80 p-5">
                 <p className="text-sm font-bold text-[#1F4E79]">
-                  Review timeline
+                  {text("reviewTimeline", "Review timeline")}
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-[#627D98]">
-                  Check dose, time, recorder name, and notes from saved logs.
+                  {text(
+                    "reviewTimelineText",
+                    "Check dose, time, recorder name, and notes from saved logs."
+                  )}
                 </p>
               </div>
 
               <div className="rounded-3xl border border-[#BFE7E1] bg-[#E8F7F5] p-5">
                 <p className="text-sm font-bold text-[#24786E]">
-                  Keep records clean
+                  {text("keepRecordsClean", "Keep records clean")}
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-[#246B63]">
-                  Edit incorrect details or delete accidental entries.
+                  {text(
+                    "keepRecordsCleanText",
+                    "Edit incorrect details or delete accidental entries."
+                  )}
                 </p>
               </div>
 
               <div className="rounded-3xl border border-[#F6D365] bg-[#FFF8E1] p-5">
                 <p className="text-sm font-bold text-[#8A5A00]">
-                  Watch close-time flags
+                  {text("watchCloseTimeFlags", "Watch close-time flags")}
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
-                  Logs with close injection-time warnings include their saved reason
-                  when available.
+                  {text(
+                    "watchCloseTimeFlagsText",
+                    "Logs with close injection-time warnings include their saved reason when available."
+                  )}
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {isLoading && <LoadingState />}
+        {isLoading && <LoadingState text={text} />}
 
-        {error && <ErrorState error={error} />}
+        {error && <ErrorState error={error} text={text} />}
 
         {!isLoading && !error && (
           <section className="mt-6">
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#627D98]">
-                  Saved history
+                  {text("savedHistory", "Saved history")}
                 </p>
 
                 <h2 className="mt-1 text-2xl font-bold text-[#102A43]">
-                  Completed injection logs
+                  {text("completedInjectionLogs", "Completed injection logs")}
                 </h2>
               </div>
             </div>
 
             {logs.length === 0 ? (
-              <EmptyState />
+              <EmptyState text={text} />
             ) : (
               <div className="grid gap-4">
                 {logs.map((log) => (
@@ -424,6 +480,8 @@ export default function HistoryPage() {
                     log={log}
                     isDeleting={isDeletingId === log.id}
                     onDelete={handleDelete}
+                    text={text}
+                    language={language}
                   />
                 ))}
               </div>
@@ -432,7 +490,7 @@ export default function HistoryPage() {
         )}
 
         <div className="mt-6">
-          <SafetyNote />
+          <SafetyNote text={text} />
         </div>
       </section>
     </main>

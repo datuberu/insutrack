@@ -10,6 +10,8 @@ import {
   scheduleMealReminderNotification,
   unlockReminderSound,
 } from "../features/reminders/notificationUtils";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+import { useLanguage } from "../i18n/LanguageContext";
 
 /*
   InsuTrack UI color system
@@ -47,22 +49,28 @@ function getCurrentDateTimeLocal() {
   return now.toISOString().slice(0, 16);
 }
 
-function formatDateTime(value) {
-  if (!value) return "No time recorded";
+function formatDateTime(value, language) {
+  if (!value) {
+    return language === "id" ? "Tidak ada waktu tercatat" : "No time recorded";
+  }
 
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(language === "id" ? "id-ID" : "en", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
 }
 
-function getInsulinTypeLabel(insulinType) {
+function getInsulinTypeLabel(insulinType, language) {
   if (insulinType === "RAPID_ACTING") {
-    return "Rapid-acting insulin (bolus)";
+    return language === "id"
+      ? "Insulin kerja cepat (bolus)"
+      : "Rapid-acting insulin (bolus)";
   }
 
   if (insulinType === "LONG_ACTING") {
-    return "Long-acting insulin (basal)";
+    return language === "id"
+      ? "Insulin kerja panjang (basal)"
+      : "Long-acting insulin (basal)";
   }
 
   return "Insulin";
@@ -80,43 +88,65 @@ function getInsulinTagStyle(insulinType) {
   return "border-slate-200 bg-slate-100 text-slate-700";
 }
 
-function getApiErrorMessage(error) {
+function getApiErrorMessage(error, text) {
   const data = error?.response?.data;
 
   if (!data) {
-    return "Could not save the injection log. Please check your input.";
+    return text(
+      "saveInjectionLogError",
+      "Could not save the injection log. Please check your input."
+    );
+  }
+
+  if (Array.isArray(data.override_reason)) {
+    return text(
+      "closeTimeReasonRequiredBeforeSaving",
+      "Please provide a reason before saving this log because the injection time is too close to a previous log."
+    );
+  }
+
+  if (typeof data.override_reason === "string") {
+    return text(
+      "closeTimeReasonRequiredBeforeSaving",
+      "Please provide a reason before saving this log because the injection time is too close to a previous log."
+    );
   }
 
   if (typeof data.detail === "string") {
     return data.detail;
   }
 
-  if (Array.isArray(data.override_reason)) {
-    return data.override_reason[0];
-  }
-
-  if (typeof data.override_reason === "string") {
-    return data.override_reason;
-  }
-
-  return "Could not save the injection log. Please check your input.";
-}
-
-function FieldLabel({ children }) {
-  return (
-    <label className="block text-sm font-bold text-[#102A43]">{children}</label>
+  return text(
+    "saveInjectionLogError",
+    "Could not save the injection log. Please check your input."
   );
 }
 
-function SafetyNote() {
+function FieldLabel({ children, required = false }) {
+  return (
+    <label className="block text-sm font-bold text-[#102A43]">
+      {children}
+      {required && (
+        <span className="ml-1 text-red-600" aria-label="required">
+          *
+        </span>
+      )}
+    </label>
+  );
+}
+
+function SafetyNote({ text }) {
   return (
     <div className="rounded-3xl border border-[#F6D365] bg-[#FFF8E1] p-5">
-      <h2 className="font-bold text-[#8A5A00]">Safety note</h2>
+      <h2 className="font-bold text-[#8A5A00]">
+        {text("safetyNote", "Safety note")}
+      </h2>
 
       <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
-        InsuTrack is a logging and routine-check tool only. It does not calculate
-        doses or provide medical advice. Follow your clinician&apos;s
-        instructions.
+        {text(
+          "logSafetyNoteText",
+          "InsuTrack is a logging and routine-check tool only. It does not calculate doses or provide medical advice. Follow your clinician's instructions."
+        )}
       </p>
     </div>
   );
@@ -137,6 +167,11 @@ function DetailItem({ label, value }) {
 export default function LogInjectionPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t, language } = useLanguage();
+
+  function text(key, fallback) {
+    return t?.[key] || fallback;
+  }
 
   const incomingDuplicateWarning = location.state?.duplicateWarning || null;
   const incomingInsulinType =
@@ -201,7 +236,10 @@ export default function LogInjectionPage() {
 
       if (duplicateWarning && !form.override_reason.trim()) {
         setError(
-          "Please provide a reason before saving this log because the injection time is too close to a previous log."
+          text(
+            "closeTimeReasonRequiredBeforeSaving",
+            "Please provide a reason before saving this log because the injection time is too close to a previous log."
+          )
         );
         setIsLoading(false);
         return;
@@ -230,7 +268,7 @@ export default function LogInjectionPage() {
         override_reason: "",
       });
     } catch (err) {
-      setError(getApiErrorMessage(err));
+      setError(getApiErrorMessage(err, text));
     } finally {
       setIsLoading(false);
     }
@@ -251,7 +289,12 @@ export default function LogInjectionPage() {
         : Number(mealReminderOffset);
 
     if (!Number.isInteger(offset) || offset < 1 || offset > 180) {
-      setMealReminderError("Reminder offset must be between 1 and 180 minutes.");
+      setMealReminderError(
+        text(
+          "reminderOffsetError",
+          "Reminder offset must be between 1 and 180 minutes."
+        )
+      );
       setIsSavingReminder(false);
       return;
     }
@@ -270,10 +313,15 @@ export default function LogInjectionPage() {
       scheduleMealReminderNotification(reminder);
 
       setMealReminderMessage(
-        `Meal reminder saved for ${formatDateTime(reminder.remind_at)}.`
+        `${text("mealReminderSavedFor", "Meal reminder saved for")} ${formatDateTime(
+          reminder.remind_at,
+          language
+        )}.`
       );
     } catch {
-      setMealReminderError("Could not save meal reminder. Please try again.");
+      setMealReminderError(
+        text("saveMealReminderError", "Could not save meal reminder. Please try again.")
+      );
     } finally {
       setIsSavingReminder(false);
     }
@@ -296,63 +344,75 @@ export default function LogInjectionPage() {
             to="/dashboard"
             className="text-sm font-semibold text-[#1F4E79] underline-offset-4 hover:underline"
           >
-            ← Back to dashboard
+            ← {text("backToDashboard", "Back to dashboard")}
           </Link>
 
-          <Link
-            to="/history"
-            className="w-fit rounded-xl border border-[#B8C9D9] bg-white px-4 py-2 text-center text-sm font-semibold text-[#1F4E79] shadow-sm transition hover:bg-[#EAF2F8]"
-          >
-            View history
-          </Link>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <LanguageSwitcher />
+
+            <Link
+              to="/history"
+              className="w-fit rounded-xl border border-[#B8C9D9] bg-white px-4 py-2 text-center text-sm font-semibold text-[#1F4E79] shadow-sm transition hover:bg-[#EAF2F8]"
+            >
+              {text("viewHistory", "View history")}
+            </Link>
+          </div>
         </div>
 
         <div className="overflow-hidden rounded-[2rem] border border-[#D9E2EC] bg-white shadow-sm">
           <div className="bg-gradient-to-br from-[#EAF2F8] via-white to-[#E8F7F5] p-6 sm:p-8">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#1F4E79]">
-              InsuTrack
+              {text("appName", "InsuTrack")}
             </p>
 
             <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#102A43] sm:text-4xl">
-              Log completed injection
+              {text("logCompletedInjectionTitle", "Log completed injection")}
             </h1>
 
             <p className="mt-3 max-w-2xl text-base leading-7 text-[#486581]">
-              Record an injection only after it has actually been completed. The
-              app checks recent logs first and asks for a reason if the injection time
-              is too close to a previous log.
+              {text(
+                "logCompletedInjectionSubtitle",
+                "Record an injection only after it has actually been completed. The app checks recent logs first and asks for a reason if the injection time is too close to a previous log."
+              )}
             </p>
 
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               <div className="rounded-3xl border border-[#B8C9D9] bg-white/80 p-5">
                 <p className="text-sm font-bold text-[#1F4E79]">
-                  1. Check recent logs
+                  1. {text("checkRecentLogs", "Check recent logs")}
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-[#627D98]">
-                  InsuTrack checks whether a similar insulin type was logged
-                  recently.
+                  {text(
+                    "checkRecentLogsText",
+                    "InsuTrack checks whether a similar insulin type was logged recently."
+                  )}
                 </p>
               </div>
 
               <div className="rounded-3xl border border-[#BFE7E1] bg-[#E8F7F5] p-5">
                 <p className="text-sm font-bold text-[#24786E]">
-                  2. Save completed log
+                  2. {text("saveCompletedLog", "Save completed log")}
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-[#246B63]">
-                  Add dose, time, recorder name, and optional notes.
+                  {text(
+                    "saveCompletedLogText",
+                    "Add dose, time, recorder name, and optional notes."
+                  )}
                 </p>
               </div>
 
               <div className="rounded-3xl border border-[#F6D365] bg-[#FFF8E1] p-5">
                 <p className="text-sm font-bold text-[#8A5A00]">
-                  3. Review warnings
+                  3. {text("reviewWarnings", "Review warnings")}
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
-                  If the injection time is too close, provide a reason before
-                  saving.
+                  {text(
+                    "reviewWarningsText",
+                    "If the injection time is too close, provide a reason before saving."
+                  )}
                 </p>
               </div>
             </div>
@@ -361,7 +421,10 @@ export default function LogInjectionPage() {
 
         {error && (
           <div className="mt-6 rounded-3xl border border-red-200 bg-[#FDECEC] p-5 text-red-700">
-            <h2 className="font-bold">Could not save log</h2>
+            <h2 className="font-bold">
+              {text("couldNotSaveLog", "Could not save log")}
+            </h2>
+
             <p className="mt-2 text-sm leading-6">{error}</p>
           </div>
         )}
@@ -370,11 +433,11 @@ export default function LogInjectionPage() {
           <div className="mt-6 overflow-hidden rounded-3xl border border-[#B7E4C7] bg-white shadow-sm">
             <div className="bg-[#E6F6EC] p-6">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#2F855A]">
-                Saved
+                {text("saved", "Saved")}
               </p>
 
               <h2 className="mt-2 text-2xl font-bold text-[#174A31]">
-                Injection log saved
+                {text("injectionLogSaved", "Injection log saved")}
               </h2>
 
               <div className="mt-4 flex flex-wrap gap-2">
@@ -383,11 +446,11 @@ export default function LogInjectionPage() {
                     successLog.insulin_type
                   )}`}
                 >
-                  {getInsulinTypeLabel(successLog.insulin_type)}
+                  {getInsulinTypeLabel(successLog.insulin_type, language)}
                 </span>
 
                 <span className="inline-flex rounded-full border border-[#B7E4C7] bg-white px-3 py-1 text-xs font-semibold text-[#2F855A]">
-                  {successLog.dose_units} units
+                  {successLog.dose_units} {text("units", "units")}
                 </span>
               </div>
             </div>
@@ -395,8 +458,10 @@ export default function LogInjectionPage() {
             <div className="p-6">
               {successLog.duplicate_risk_flag && (
                 <div className="rounded-2xl border border-[#F6D365] bg-[#FFF8E1] p-5 text-sm leading-6 text-[#8A5A00]">
-                  This log was saved even though the injection time was too close to a previous log.
-                  The reason is saved in history.
+                  {text(
+                    "savedWithCloseTimeWarningNotice",
+                    "This log was saved even though the injection time was too close to a previous log. The reason is saved in history."
+                  )}
                 </div>
               )}
 
@@ -406,14 +471,14 @@ export default function LogInjectionPage() {
                   onClick={handleGoToDashboard}
                   className="rounded-xl bg-[#2F855A] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#276749]"
                 >
-                  Go to dashboard
+                  {text("goToDashboard", "Go to dashboard")}
                 </button>
 
                 <Link
                   to="/history"
                   className="rounded-xl border border-[#B7E4C7] bg-white px-4 py-3 text-center text-sm font-semibold text-[#2F855A] transition hover:bg-[#E6F6EC]"
                 >
-                  View history
+                  {text("viewHistory", "View history")}
                 </Link>
               </div>
             </div>
@@ -424,28 +489,34 @@ export default function LogInjectionPage() {
           <div className="mt-6 overflow-hidden rounded-3xl border border-[#BFE7E1] bg-white shadow-sm">
             <div className="bg-[#E8F7F5] p-6">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#24786E]">
-                Routine reminder
+                {text("routineReminder", "Routine reminder")}
               </p>
 
               <h2 className="mt-2 text-2xl font-bold text-[#124E47]">
-                Set meal reminder?
+                {text("setMealReminder", "Set meal reminder?")}
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-[#246B63]">
-                This reminder is only for your personal routine. It is separate
-                from duplicate-check logic.
+                {text(
+                  "setMealReminderText",
+                  "This reminder is only for your personal routine. It is separate from the close-time safety check."
+                )}
               </p>
 
               <p className="mt-2 text-xs leading-5 text-[#24786E]">
-                Personal routine reminder only. Follow your clinician&apos;s
-                instructions.
+                {text(
+                  "routineReminderOnly",
+                  "Personal routine reminder only. Follow your clinician's instructions."
+                )}
               </p>
             </div>
 
             <div className="p-6">
               <div className="space-y-4">
                 <div>
-                  <FieldLabel>Reminder timing</FieldLabel>
+                  <FieldLabel>
+                    {text("reminderTiming", "Reminder timing")}
+                  </FieldLabel>
 
                   <select
                     value={mealReminderOffset}
@@ -454,15 +525,17 @@ export default function LogInjectionPage() {
                     }
                     className="mt-2 w-full rounded-xl border border-[#BFE7E1] bg-white px-4 py-3 text-[#102A43] outline-none transition focus:border-[#2A9D8F] focus:ring-4 focus:ring-[#E8F7F5]"
                   >
-                    <option value="10">10 minutes</option>
-                    <option value="15">15 minutes</option>
-                    <option value="custom">Custom</option>
+                    <option value="10">10 {text("minutes", "minutes")}</option>
+                    <option value="15">15 {text("minutes", "minutes")}</option>
+                    <option value="custom">{text("custom", "Custom")}</option>
                   </select>
                 </div>
 
                 {mealReminderOffset === "custom" && (
                   <div>
-                    <FieldLabel>Custom minutes</FieldLabel>
+                    <FieldLabel>
+                      {text("customMinutes", "Custom minutes")}
+                    </FieldLabel>
 
                     <input
                       value={customMealReminderOffset}
@@ -473,7 +546,7 @@ export default function LogInjectionPage() {
                       type="number"
                       min="1"
                       max="180"
-                      placeholder="Enter minutes"
+                      placeholder={text("enterMinutes", "Enter minutes")}
                     />
                   </div>
                 )}
@@ -492,7 +565,9 @@ export default function LogInjectionPage() {
                   disabled={isSavingReminder}
                   className="rounded-xl bg-[#2A9D8F] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#24786E] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isSavingReminder ? "Saving reminder..." : "Save reminder"}
+                  {isSavingReminder
+                    ? text("savingReminder", "Saving reminder...")
+                    : text("saveReminder", "Save reminder")}
                 </button>
 
                 <button
@@ -500,7 +575,7 @@ export default function LogInjectionPage() {
                   onClick={() => setReminderSkipped(true)}
                   className="rounded-xl border border-[#BFE7E1] bg-white px-4 py-3 text-sm font-semibold text-[#24786E] transition hover:bg-[#E8F7F5]"
                 >
-                  Skip reminder
+                  {text("skipReminder", "Skip reminder")}
                 </button>
               </div>
             </div>
@@ -509,13 +584,17 @@ export default function LogInjectionPage() {
 
         {mealReminderMessage && (
           <div className="mt-6 rounded-3xl border border-[#BFE7E1] bg-[#E8F7F5] p-5 text-[#124E47]">
-            <h2 className="font-bold">Meal reminder saved</h2>
+            <h2 className="font-bold">
+              {text("mealReminderSaved", "Meal reminder saved")}
+            </h2>
 
             <p className="mt-2 text-sm leading-6">{mealReminderMessage}</p>
 
             <p className="mt-2 text-xs leading-5 text-[#24786E]">
-              Personal routine reminder only. Follow your clinician&apos;s
-              instructions.
+              {text(
+                "routineReminderOnly",
+                "Personal routine reminder only. Follow your clinician's instructions."
+              )}
             </p>
           </div>
         )}
@@ -524,16 +603,21 @@ export default function LogInjectionPage() {
           <div className="mt-6 overflow-hidden rounded-3xl border border-[#F6D365] bg-white shadow-sm">
             <div className="bg-[#FFF8E1] p-6">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#8A5A00]">
-                Caution
+                {text("caution", "Caution")}
               </p>
 
               <h2 className="mt-2 text-2xl font-bold text-[#8A5A00]">
-                Injection time is too close to a recent log
+                {text(
+                  "injectionTimeTooCloseToRecentLog",
+                  "Injection time is too close to a recent log"
+                )}
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-[#8A5A00]">
-                A recent matching insulin log already exists. Review the last
-                log carefully before saving another one.
+                {text(
+                  "closeTimeWarningDescription",
+                  "A recent matching insulin log already exists, so this injection time is close to a previous log. Review the last log carefully before saving another one."
+                )}
               </p>
             </div>
 
@@ -543,7 +627,7 @@ export default function LogInjectionPage() {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p className="text-sm font-bold uppercase tracking-wide text-[#627D98]">
-                        Last matching log
+                        {text("lastMatchingLog", "Last matching log")}
                       </p>
 
                       <span
@@ -552,38 +636,49 @@ export default function LogInjectionPage() {
                         )}`}
                       >
                         {getInsulinTypeLabel(
-                          duplicateWarning.last_injection.insulin_type
+                          duplicateWarning.last_injection.insulin_type,
+                          language
                         )}
                       </span>
                     </div>
 
                     <span className="inline-flex w-fit rounded-full border border-[#F6D365] bg-[#FFF8E1] px-3 py-1 text-xs font-semibold text-[#8A5A00]">
-                      Review carefully
+                      {text("reviewCarefully", "Review carefully")}
                     </span>
                   </div>
 
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
                     <DetailItem
-                      label="Dose"
-                      value={`${duplicateWarning.last_injection.dose_units} units`}
+                      label={text("dose", "Dose")}
+                      value={`${duplicateWarning.last_injection.dose_units} ${text(
+                        "units",
+                        "units"
+                      )}`}
                     />
 
                     <DetailItem
-                      label="Injected at"
+                      label={text("injectedAt", "Injected at")}
                       value={formatDateTime(
-                        duplicateWarning.last_injection.injected_at
+                        duplicateWarning.last_injection.injected_at,
+                        language
                       )}
                     />
 
                     <DetailItem
-                      label="Recorded by"
-                      value={duplicateWarning.last_injection.recorded_by_name}
+                      label={text("recordedBy", "Recorded by")}
+                      value={
+                        duplicateWarning.last_injection.recorded_by_name ||
+                        text("unknownRecorder", "Unknown recorder")
+                      }
                     />
 
                     {duplicateWarning.time_since_last_minutes !== null && (
                       <DetailItem
-                        label="Time since last log"
-                        value={`${duplicateWarning.time_since_last_minutes} minutes`}
+                        label={text("timeSinceLastLog", "Time since last log")}
+                        value={`${duplicateWarning.time_since_last_minutes} ${text(
+                          "minutes",
+                          "minutes"
+                        )}`}
                       />
                     )}
                   </div>
@@ -591,8 +686,10 @@ export default function LogInjectionPage() {
               )}
 
               <div className="mt-5 rounded-2xl border border-[#F6D365] bg-[#FFF8E1] p-5 text-sm leading-6 text-[#8A5A00]">
-                If this injection was actually completed and you still need to
-                save the log, enter an override reason below.
+                {text(
+                  "enterReasonIfAlreadyCompleted",
+                  "If this injection was actually completed and you still need to save the log, enter a reason below."
+                )}
               </div>
             </div>
           </div>
@@ -606,11 +703,11 @@ export default function LogInjectionPage() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#627D98]">
-                  Injection details
+                  {text("injectionDetails", "Injection details")}
                 </p>
 
                 <h2 className="mt-1 text-2xl font-bold text-[#102A43]">
-                  Completed injection log
+                  {text("completedInjectionLog", "Completed injection log")}
                 </h2>
               </div>
 
@@ -619,13 +716,13 @@ export default function LogInjectionPage() {
                   form.insulin_type
                 )}`}
               >
-                {getInsulinTypeLabel(form.insulin_type)}
+                {getInsulinTypeLabel(form.insulin_type, language)}
               </span>
             </div>
 
             <div className="mt-6 grid gap-5">
               <div>
-                <FieldLabel>Insulin type</FieldLabel>
+                <FieldLabel>{text("insulinType", "Insulin type")}</FieldLabel>
 
                 <select
                   name="insulin_type"
@@ -639,17 +736,18 @@ export default function LogInjectionPage() {
                   required
                 >
                   <option value="RAPID_ACTING">
-                    Rapid-acting insulin (bolus)
+                    {getInsulinTypeLabel("RAPID_ACTING", language)}
                   </option>
+
                   <option value="LONG_ACTING">
-                    Long-acting insulin (basal)
+                    {getInsulinTypeLabel("LONG_ACTING", language)}
                   </option>
                 </select>
               </div>
 
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
-                  <FieldLabel>Dose units</FieldLabel>
+                  <FieldLabel>{text("doseUnits", "Dose units")}</FieldLabel>
 
                   <input
                     name="dose_units"
@@ -658,13 +756,15 @@ export default function LogInjectionPage() {
                     className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
                     type="number"
                     min="1"
-                    placeholder="Example: 8"
+                    placeholder={text("doseExample", "Example: 8")}
                     required
                   />
                 </div>
 
                 <div>
-                  <FieldLabel>Injection time</FieldLabel>
+                  <FieldLabel>
+                    {text("injectionTime", "Injection time")}
+                  </FieldLabel>
 
                   <input
                     name="injected_at"
@@ -678,7 +778,7 @@ export default function LogInjectionPage() {
               </div>
 
               <div>
-                <FieldLabel>Recorded by</FieldLabel>
+                <FieldLabel required>{text("recordedBy", "Recorded by")}</FieldLabel>
 
                 <input
                   name="recorded_by_name"
@@ -686,45 +786,53 @@ export default function LogInjectionPage() {
                   onChange={handleChange}
                   className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
                   type="text"
-                  placeholder="Example: John (self)"
+                  placeholder={text("recordedByExampleSelf", "Example: John (self)")}
                   required
                 />
               </div>
 
               <div>
-                <FieldLabel>Notes</FieldLabel>
+                <FieldLabel>{text("notes", "Notes")}</FieldLabel>
 
                 <textarea
                   name="notes"
                   value={form.notes}
                   onChange={handleChange}
                   className="mt-2 min-h-28 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
-                  placeholder="Optional notes"
+                  placeholder={text("optionalNotes", "Optional notes")}
                 />
               </div>
 
               {duplicateWarning && (
                 <div>
-                  <FieldLabel>Override reason</FieldLabel>
+                  <FieldLabel>
+                    {text("reason", "Reason")}
+                  </FieldLabel>
 
                   <textarea
                     name="override_reason"
                     value={form.override_reason}
                     onChange={handleChange}
                     className="mt-2 min-h-28 w-full rounded-xl border border-[#F6D365] bg-[#FFF8E1] px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9A6B00] focus:border-[#D69E2E] focus:ring-4 focus:ring-[#FFF8E1]"
-                    placeholder="Example: I checked the previous log and this was a separate completed injection."
+                    placeholder={text(
+                      "overrideReasonExample",
+                      "Example: I checked the previous log and this was a separate completed injection."
+                    )}
                     required
                   />
 
                   <p className="mt-2 text-xs leading-5 text-[#8A5A00]">
-                    Required because the injection time is too close to a previous log.
+                    {text(
+                      "reasonRequiredCloseTime",
+                      "Required because the injection time is too close to a previous log."
+                    )}
                   </p>
                 </div>
               )}
             </div>
 
             <div className="mt-6">
-              <SafetyNote />
+              <SafetyNote text={text} />
             </div>
 
             <button
@@ -734,11 +842,11 @@ export default function LogInjectionPage() {
             >
               {isLoading
                 ? duplicateWarning
-                  ? "Saving..."
-                  : "Checking..."
+                  ? text("saving", "Saving...")
+                  : text("checking", "Checking...")
                 : duplicateWarning
-                  ? "Save with override reason"
-                  : "Check and save injection log"}
+                  ? text("saveWithReason", "Save with reason")
+                  : text("checkAndSaveInjectionLog", "Check and save injection log")}
             </button>
           </form>
         )}

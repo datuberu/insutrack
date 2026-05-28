@@ -42,7 +42,7 @@ class InjectionLogListCreateView(generics.ListCreateAPIView):
         if duplicate_risk and not override_reason:
             raise ValidationError(
                 {
-                    "override_reason": "Override reason is required when possible duplicate risk is detected."
+                    "override_reason": "Override reason is required because the injection time is too close to a previous log."
                 }
             )
 
@@ -130,7 +130,7 @@ class PreCheckView(APIView):
             return Response(
                 {
                     "status": "caution",
-                    "message": f"Possible duplicate {insulin_label} log detected. Please review the last injection before continuing.",
+                    "message": f"The injection time is too close to a recent {insulin_label} log. Please review before continuing.",
                     "last_injection": InjectionLogSerializer(last_injection).data,
                     "time_since_last_minutes": minutes_since,
                 }
@@ -139,7 +139,7 @@ class PreCheckView(APIView):
         return Response(
             {
                 "status": "safe",
-                "message": "No recent matching injection was found in the duplicate-check window.",
+                "message": "No recent matching injection was found in the safety-check time window.",
                 "last_injection": None,
                 "time_since_last_minutes": None,
             }

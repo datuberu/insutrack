@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { loginUser } from "../features/auth/authApi";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+import { useLanguage } from "../i18n/LanguageContext";
 
 /*
   InsuTrack UI color system
@@ -29,6 +31,7 @@ import { loginUser } from "../features/auth/authApi";
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
 
   const queryParams = new URLSearchParams(location.search);
 
@@ -86,7 +89,7 @@ export default function LoginPage() {
 
       navigate("/dashboard");
     } catch {
-      setError("Login failed. Please check your username and password.");
+      setError(t.loginFailed);
     } finally {
       setIsLoading(false);
     }
@@ -98,49 +101,50 @@ export default function LoginPage() {
         <div className="hidden lg:block">
           <div className="overflow-hidden rounded-[2rem] border border-[#D9E2EC] bg-white shadow-sm">
             <div className="bg-gradient-to-br from-[#EAF2F8] via-white to-[#E8F7F5] p-8">
-              <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#1F4E79]">
-                InsuTrack
-              </p>
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#1F4E79]">
+                  {t.appName}
+                </p>
+
+                <LanguageSwitcher />
+              </div>
 
               <h1 className="mt-4 max-w-xl text-4xl font-bold tracking-tight text-[#102A43]">
-                Safety-first insulin logging and routine checking.
+                {t.loginHeroTitle}
               </h1>
 
               <p className="mt-4 max-w-xl text-base leading-7 text-[#486581]">
-                InsuTrack helps keep manual insulin routines clearer for users
-                and caregivers.
+                {t.loginHeroSubtitle}
               </p>
 
               <div className="mt-8 grid gap-4">
                 <div className="rounded-3xl border border-[#B8C9D9] bg-white/80 p-5">
                   <p className="text-sm font-bold text-[#1F4E79]">
-                    Pre-injection check
+                    {t.preInjectionCheck}
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-[#627D98]">
-                    Check recent logs before recording another completed
-                    injection.
+                    {t.preInjectionCheckShort}
                   </p>
                 </div>
 
                 <div className="rounded-3xl border border-[#BFE7E1] bg-[#E8F7F5] p-5">
                   <p className="text-sm font-bold text-[#24786E]">
-                    Meal reminder
+                    {t.mealReminder}
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-[#246B63]">
-                    Personal routine reminder only. Follow your clinician&apos;s
-                    instructions.
+                    {t.routineReminderOnly}
                   </p>
                 </div>
 
                 <div className="rounded-3xl border border-[#F6D365] bg-[#FFF8E1] p-5">
                   <p className="text-sm font-bold text-[#8A5A00]">
-                    Safety note
+                    {t.safetyNote}
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
-                    This app does not calculate doses or provide medical advice.
+                    {t.appDoesNotCalculate}
                   </p>
                 </div>
               </div>
@@ -150,27 +154,29 @@ export default function LoginPage() {
 
         <div className="mx-auto w-full max-w-md">
           <div className="mb-5 text-center lg:text-left">
+            <div className="mb-4 flex justify-center lg:hidden">
+              <LanguageSwitcher />
+            </div>
+
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#1F4E79]">
-              InsuTrack
+              {t.appName}
             </p>
 
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#102A43]">
-              Welcome back
+              {t.loginTitle}
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-[#627D98]">
-              Login to access your dashboard and injection history.
+              {t.loginSubtitle}
             </p>
           </div>
 
           <section className="rounded-[2rem] border border-[#D9E2EC] bg-white p-6 shadow-sm sm:p-8">
             {registrationSuccess && (
               <div className="mb-5 rounded-2xl border border-[#B7E4C7] bg-[#E6F6EC] p-4 text-sm leading-6 text-[#2F855A]">
-                <p className="font-bold">Account created successfully.</p>
+                <p className="font-bold">{t.accountCreated}</p>
 
-                <p className="mt-1">
-                  Please log in with your username and password to continue.
-                </p>
+                <p className="mt-1">{t.loginAfterRegister}</p>
               </div>
             )}
 
@@ -183,7 +189,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-[#102A43]">
-                  Username
+                  {t.username}
                 </label>
 
                 <input
@@ -192,7 +198,7 @@ export default function LoginPage() {
                   onChange={handleChange}
                   className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
                   type="text"
-                  placeholder="Enter username"
+                  placeholder={t.enterUsername}
                   autoComplete="username"
                   required
                 />
@@ -200,7 +206,7 @@ export default function LoginPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-[#102A43]">
-                  Password
+                  {t.password}
                 </label>
 
                 <input
@@ -209,7 +215,7 @@ export default function LoginPage() {
                   onChange={handleChange}
                   className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
                   type="password"
-                  placeholder="Enter password"
+                  placeholder={t.enterPassword}
                   autoComplete="current-password"
                   required
                 />
@@ -220,28 +226,27 @@ export default function LoginPage() {
                 disabled={isLoading}
                 className="w-full rounded-xl bg-[#1F4E79] px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-[#173F63] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isLoading ? "Logging in..." : "Login"}
+                {isLoading ? t.loggingIn : t.login}
               </button>
             </form>
 
             <div className="mt-6 rounded-2xl border border-[#F6D365] bg-[#FFF8E1] p-4">
               <p className="text-xs font-bold uppercase tracking-wide text-[#8A5A00]">
-                Safety note
+                {t.safetyNote}
               </p>
 
               <p className="mt-1 text-sm leading-6 text-[#8A5A00]">
-                InsuTrack is a logging and routine-check tool only. Follow your
-                clinician&apos;s instructions.
+                {t.safetyNoteText}
               </p>
             </div>
 
             <p className="mt-6 text-center text-sm text-[#627D98]">
-              No account yet?{" "}
+              {t.noAccount}{" "}
               <Link
                 to="/register"
                 className="font-semibold text-[#1F4E79] underline-offset-4 hover:underline"
               >
-                Create one
+                {t.createOne}
               </Link>
             </p>
           </section>
