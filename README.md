@@ -623,6 +623,36 @@ This logic is used only as a routine-check support feature, not as medical advic
 
 ---
 
+## Screenshots
+
+### Login Page
+
+![Login page](docs/screenshots/login.png)
+
+### Dashboard
+
+![Dashboard page](docs/screenshots/dashboard.png)
+
+### Pre-Injection Check
+
+![Pre-injection check page](docs/screenshots/precheck-safe.png)
+
+### Close-Time Warning
+
+![Pre-injection caution result](docs/screenshots/precheck-caution.png)
+
+### Log Injection
+
+![Log injection page](docs/screenshots/log-injection.png)
+
+### History with Filters
+
+![History page with filters](docs/screenshots/history-filters.png)
+
+### Glossary
+
+![Glossary page](docs/screenshots/glossary.png)
+
 ## Demo Flow
 
 A typical demo flow:
