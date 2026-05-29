@@ -254,13 +254,13 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row lg:items-start">
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row lg:items-start">
                 <LanguageSwitcher />
 
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-fit rounded-xl border border-[#C53030] bg-[#E53E3E] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#C53030] focus:outline-none focus:ring-4 focus:ring-[#FDECEC]"
+                  className="w-full rounded-xl border border-[#C53030] bg-[#E53E3E] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#C53030] focus:outline-none focus:ring-4 focus:ring-[#FDECEC] sm:w-fit"
                 >
                   {text("logout", "Logout")}
                 </button>
