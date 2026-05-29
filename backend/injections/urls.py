@@ -7,6 +7,7 @@ from .views import (
     PreCheckView,
     UserSettingsView,
     MealReminderCreateView,
+    GlossaryView,
 )
 
 urlpatterns = [
@@ -16,4 +17,5 @@ urlpatterns = [
     path("precheck/", PreCheckView.as_view(), name="precheck"),
     path("settings/me/", UserSettingsView.as_view(), name="user-settings"),
     path("meal-reminders/", MealReminderCreateView.as_view(), name="meal-reminder-create"),
+    path("glossary/", GlossaryView.as_view(), name="glossary"),
 ]

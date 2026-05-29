@@ -3,10 +3,11 @@ from datetime import timedelta
 from django.utils import timezone
 from rest_framework import generics, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from .glossary import GLOSSARY_TERMS
 from .models import InjectionLog, UserSettings, MealReminder
 from .serializers import (
     InjectionLogSerializer,
@@ -216,6 +217,56 @@ class MealReminderCreateView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+class GlossaryView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        language = request.query_params.get("lang", "en").lower()
+        category = request.query_params.get("category", "").lower()
+        search_query = request.query_params.get("q", "").lower().strip()
+
+        if language not in ["en", "id"]:
+            language = "en"
+
+        results = []
+
+        for item in GLOSSARY_TERMS:
+            if category and item["category"] != category:
+                continue
+
+            translation = item[language]
+
+            searchable_text = " ".join(
+                [
+                    item["key"],
+                    item["category"],
+                    translation["term"],
+                    translation["definition"],
+                ]
+            ).lower()
+
+            if search_query and search_query not in searchable_text:
+                continue
+
+            results.append(
+                {
+                    "key": item["key"],
+                    "category": item["category"],
+                    "term": translation["term"],
+                    "definition": translation["definition"],
+                }
+            )
+
+        return Response(
+            {
+                "language": language,
+                "count": len(results),
+                "results": results,
+                "disclaimer": get_glossary_disclaimer(language),
+            }
+        )
+
+
 def has_duplicate_risk(user, insulin_type, injected_at):
     window = DUPLICATE_WINDOWS.get(insulin_type)
 
@@ -240,3 +291,18 @@ def get_insulin_display_label(insulin_type):
     }
 
     return labels.get(insulin_type, "insulin")
+
+
+def get_glossary_disclaimer(language):
+    if language == "id":
+        return (
+            "Glosarium ini hanya untuk membantu pengguna memahami istilah di aplikasi. "
+            "InsuTrack tidak menghitung dosis, tidak menentukan apakah pengguna harus menyuntik, "
+            "dan tidak memberikan saran medis."
+        )
+
+    return (
+        "This glossary only helps users understand terms used in the app. "
+        "InsuTrack does not calculate doses, decide whether users should inject, "
+        "or provide medical advice."
+    )
