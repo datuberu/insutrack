@@ -160,6 +160,177 @@ function EmptyState({ text }) {
   );
 }
 
+function NoMatchingLogsState({ text, resetFilters }) {
+  return (
+    <div className="rounded-3xl border border-dashed border-[#C9D8E6] bg-[#F7FAFC] p-6 text-center">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EAF2F8] text-xl">
+        🔎
+      </div>
+
+      <h2 className="mt-4 text-lg font-bold text-[#102A43]">
+        {text("noMatchingLogs", "No matching logs found")}
+      </h2>
+
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#627D98]">
+        {text(
+          "noMatchingLogsText",
+          "Try changing or resetting the filters to see more records."
+        )}
+      </p>
+
+      <button
+        type="button"
+        onClick={resetFilters}
+        className="mt-5 rounded-xl bg-[#1F4E79] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#173F63]"
+      >
+        {text("resetFilters", "Reset filters")}
+      </button>
+    </div>
+  );
+}
+
+function HistoryFilters({
+  text,
+  language,
+  searchTerm,
+  setSearchTerm,
+  insulinTypeFilter,
+  setInsulinTypeFilter,
+  warningFilter,
+  setWarningFilter,
+  fromDate,
+  setFromDate,
+  toDate,
+  setToDate,
+  totalCount,
+  filteredCount,
+  resetFilters,
+}) {
+  return (
+    <div className="mb-6 rounded-3xl border border-[#D9E2EC] bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#627D98]">
+            {text("filterHistory", "Filter history")}
+          </p>
+
+          <h2 className="mt-1 text-xl font-bold text-[#102A43]">
+            {text("findInjectionLogs", "Find injection logs")}
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-[#627D98]">
+            {text(
+              "filterHistoryText",
+              "Search and filter saved records by recorder, insulin type, warning status, or injection date."
+            )}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={resetFilters}
+          className="w-fit rounded-xl border border-[#B8C9D9] bg-white px-4 py-2 text-sm font-semibold text-[#1F4E79] shadow-sm transition hover:bg-[#EAF2F8]"
+        >
+          {text("resetFilters", "Reset filters")}
+        </button>
+      </div>
+
+      <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+        <div className="lg:col-span-2">
+          <label className="block text-sm font-bold text-[#102A43]">
+            {text("search", "Search")}
+          </label>
+
+          <input
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition placeholder:text-[#9FB3C8] focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
+            type="text"
+            placeholder={text(
+              "searchByRecorderOrNotes",
+              "Search by recorder or notes"
+            )}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-[#102A43]">
+            {text("insulinType", "Insulin type")}
+          </label>
+
+          <select
+            value={insulinTypeFilter}
+            onChange={(event) => setInsulinTypeFilter(event.target.value)}
+            className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
+          >
+            <option value="ALL">{text("allTypes", "All types")}</option>
+            <option value="RAPID_ACTING">
+              {getInsulinTypeLabel("RAPID_ACTING", language)}
+            </option>
+            <option value="LONG_ACTING">
+              {getInsulinTypeLabel("LONG_ACTING", language)}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-[#102A43]">
+            {text("warningStatus", "Warning status")}
+          </label>
+
+          <select
+            value={warningFilter}
+            onChange={(event) => setWarningFilter(event.target.value)}
+            className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
+          >
+            <option value="ALL">{text("allRecords", "All records")}</option>
+            <option value="WARNING_ONLY">
+              {text("warningOnly", "Warning only")}
+            </option>
+            <option value="NO_WARNING">
+              {text("noWarning", "No warning")}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-[#102A43]">
+            {text("fromDate", "From date")}
+          </label>
+
+          <input
+            value={fromDate}
+            onChange={(event) => setFromDate(event.target.value)}
+            className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
+            type="date"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-[#102A43]">
+            {text("toDate", "To date")}
+          </label>
+
+          <input
+            value={toDate}
+            onChange={(event) => setToDate(event.target.value)}
+            className="mt-2 w-full rounded-xl border border-[#D9E2EC] bg-white px-4 py-3 text-[#102A43] outline-none transition focus:border-[#1F4E79] focus:ring-4 focus:ring-[#EAF2F8]"
+            type="date"
+          />
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl bg-[#F7FAFC] p-4 text-sm text-[#627D98]">
+        {text("showing", "Showing")}{" "}
+        <span className="font-bold text-[#102A43]">{filteredCount}</span>{" "}
+        {text("of", "of")}{" "}
+        <span className="font-bold text-[#102A43]">{totalCount}</span>{" "}
+        {text("records", "records")}.
+      </div>
+    </div>
+  );
+}
+
 function HistoryLogCard({ log, isDeleting, onDelete, text, language }) {
   return (
     <article className="rounded-3xl border border-[#D9E2EC] bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -305,6 +476,12 @@ export default function HistoryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDeletingId, setIsDeletingId] = useState(null);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [insulinTypeFilter, setInsulinTypeFilter] = useState("ALL");
+  const [warningFilter, setWarningFilter] = useState("ALL");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
   useEffect(() => {
     async function loadLogs() {
       try {
@@ -322,6 +499,50 @@ export default function HistoryPage() {
 
     loadLogs();
   }, [t]);
+
+  const filteredLogs = logs.filter((log) => {
+    const searchValue = searchTerm.trim().toLowerCase();
+
+    const recordedBy = log.recorded_by_name?.toLowerCase() || "";
+    const notes = log.notes?.toLowerCase() || "";
+
+    const matchesSearch =
+      !searchValue ||
+      recordedBy.includes(searchValue) ||
+      notes.includes(searchValue);
+
+    const matchesInsulinType =
+      insulinTypeFilter === "ALL" || log.insulin_type === insulinTypeFilter;
+
+    const matchesWarning =
+      warningFilter === "ALL" ||
+      (warningFilter === "WARNING_ONLY" && log.duplicate_risk_flag) ||
+      (warningFilter === "NO_WARNING" && !log.duplicate_risk_flag);
+
+    const injectedAt = new Date(log.injected_at);
+
+    const matchesFromDate =
+      !fromDate || injectedAt >= new Date(`${fromDate}T00:00:00`);
+
+    const matchesToDate =
+      !toDate || injectedAt <= new Date(`${toDate}T23:59:59`);
+
+    return (
+      matchesSearch &&
+      matchesInsulinType &&
+      matchesWarning &&
+      matchesFromDate &&
+      matchesToDate
+    );
+  });
+
+  function resetFilters() {
+    setSearchTerm("");
+    setInsulinTypeFilter("ALL");
+    setWarningFilter("ALL");
+    setFromDate("");
+    setToDate("");
+  }
 
   async function handleDelete(id) {
     const confirmed = window.confirm(
@@ -458,6 +679,26 @@ export default function HistoryPage() {
 
         {!isLoading && !error && (
           <section className="mt-6">
+            {logs.length > 0 && (
+              <HistoryFilters
+                text={text}
+                language={language}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                insulinTypeFilter={insulinTypeFilter}
+                setInsulinTypeFilter={setInsulinTypeFilter}
+                warningFilter={warningFilter}
+                setWarningFilter={setWarningFilter}
+                fromDate={fromDate}
+                setFromDate={setFromDate}
+                toDate={toDate}
+                setToDate={setToDate}
+                totalCount={logs.length}
+                filteredCount={filteredLogs.length}
+                resetFilters={resetFilters}
+              />
+            )}
+
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#627D98]">
@@ -472,9 +713,11 @@ export default function HistoryPage() {
 
             {logs.length === 0 ? (
               <EmptyState text={text} />
+            ) : filteredLogs.length === 0 ? (
+              <NoMatchingLogsState text={text} resetFilters={resetFilters} />
             ) : (
               <div className="grid gap-4">
-                {logs.map((log) => (
+                {filteredLogs.map((log) => (
                   <HistoryLogCard
                     key={log.id}
                     log={log}
