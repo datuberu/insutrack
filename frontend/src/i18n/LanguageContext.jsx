@@ -264,7 +264,46 @@ const translations = {
     checkAndSaveInjectionLog: "Check and save injection log",
     logSafetyNoteText:
         "InsuTrack is a logging and routine-check tool only. It does not calculate doses or provide medical advice. Follow your clinician's instructions.",
-},
+    
+    // Pre-injection check page
+    preCheckSubtitle:
+        "Review recent logs before recording another completed injection. This helps you check whether a similar insulin type was logged recently.",
+    chooseInsulin: "Choose insulin",
+    chooseInsulinText: "Select rapid-acting or long-acting insulin.",
+    runCheckStepText: "InsuTrack checks your recent saved logs.",
+    reviewResult: "Review result",
+    reviewResultText:
+        "Safe means no matching recent log was found. Caution means review carefully.",
+    whichInsulinCheck: "Which insulin type do you want to check?",
+    selected: "Selected",
+    preCheckFailed: "Check failed",
+    preCheckFailedText:
+        "Could not run pre-injection check. Please login again or try later.",
+    safeCheckResult: "Safe check result",
+    noRecentMatchingLogFound: "No recent matching log found",
+    safeCheckMessage:
+        "No recent matching injection was found in the safety-check time window.",
+    safeCheckDescriptionStart:
+        "InsuTrack did not find a recent saved log for",
+    safeCheckDescriptionEnd:
+        "inside the safety-check time window. This is not medical advice.",
+    continueToLogCompletedInjection: "Continue to log completed injection",
+    preCheckCautionAdvice:
+        "Review your actual routine carefully before continuing. InsuTrack does not decide whether you should inject. If you already completed another injection and need to save it, the log page will require a reason because the injection time is close to a previous log.",
+    continueIfAlreadyCompleted: "Continue if already completed",
+    reviewHistory: "Review history",
+    runCheckPromptStart:
+        "Run the check to see whether there is a recent matching log for",
+    
+    // Meal reminder alarm
+    insutrackReminder: "InsuTrack reminder",
+    mealTime: "Meal time",
+    mealReminderAlarmDescription:
+        "This is your personal routine reminder after a rapid-acting insulin log.",
+    mealReminderAlarmSafetyText:
+        "InsuTrack does not calculate doses, decide meal timing, or provide medical advice.",
+    iUnderstand: "I understand",
+    },
 
   id: {
     language: "Bahasa",
@@ -529,6 +568,45 @@ const translations = {
     checkAndSaveInjectionLog: "Periksa dan simpan catatan suntikan",
     logSafetyNoteText:
         "InsuTrack hanya merupakan alat pencatatan dan pengecekan rutinitas. Aplikasi ini tidak menghitung dosis atau memberikan saran medis. Ikuti instruksi tenaga kesehatan Anda.",
+    // Pre-injection check page
+    // Indonesian
+    preCheckSubtitle:
+        "Tinjau catatan terbaru sebelum mencatat suntikan berikutnya. Ini membantu Anda memeriksa apakah jenis insulin yang sama sudah dicatat baru-baru ini.",
+    chooseInsulin: "Pilih insulin",
+    chooseInsulinText: "Pilih insulin kerja cepat atau insulin kerja panjang.",
+    runCheckStepText: "InsuTrack memeriksa catatan terbaru yang tersimpan.",
+    reviewResult: "Tinjau hasil",
+    reviewResultText:
+        "Aman berarti tidak ada catatan terbaru yang sesuai. Perhatian berarti perlu ditinjau dengan hati-hati.",
+    whichInsulinCheck: "Jenis insulin mana yang ingin Anda periksa?",
+    selected: "Dipilih",
+    preCheckFailed: "Pengecekan gagal",
+    preCheckFailedText:
+        "Tidak dapat menjalankan pengecekan sebelum suntik. Silakan masuk kembali atau coba lagi nanti.",
+    safeCheckResult: "Hasil pengecekan aman",
+    noRecentMatchingLogFound: "Tidak ada catatan terbaru yang sesuai",
+    safeCheckMessage:
+        "Tidak ada catatan suntikan terbaru yang sesuai dalam rentang waktu pengecekan keselamatan.",
+    safeCheckDescriptionStart:
+        "InsuTrack tidak menemukan catatan terbaru yang tersimpan untuk",
+    safeCheckDescriptionEnd:
+        "dalam rentang waktu pengecekan keselamatan. Ini bukan saran medis.",
+    continueToLogCompletedInjection: "Lanjut catat suntikan selesai",
+    preCheckCautionAdvice:
+        "Tinjau rutinitas Anda dengan hati-hati sebelum melanjutkan. InsuTrack tidak menentukan apakah Anda harus menyuntik. Jika Anda sudah melakukan suntikan lain dan perlu menyimpannya, halaman catat suntikan akan meminta alasan karena waktu suntik dekat dengan catatan sebelumnya.",
+    continueIfAlreadyCompleted: "Lanjut jika sudah dilakukan",
+    reviewHistory: "Tinjau riwayat",
+    runCheckPromptStart:
+        "Jalankan pengecekan untuk melihat apakah ada catatan terbaru yang sesuai untuk",
+    
+    // Meal reminder alarm
+    insutrackReminder: "Pengingat InsuTrack",
+    mealTime: "Waktu makan",
+    mealReminderAlarmDescription:
+        "Ini adalah pengingat rutinitas pribadi setelah catatan insulin kerja cepat.",
+    mealReminderAlarmSafetyText:
+        "InsuTrack tidak menghitung dosis, menentukan waktu makan, atau memberikan saran medis.",
+    iUnderstand: "Saya mengerti",
   },
 };
 

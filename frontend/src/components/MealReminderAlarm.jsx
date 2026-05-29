@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { finishMealReminderAlarm } from "../features/reminders/notificationUtils";
+import { useLanguage } from "../i18n/LanguageContext";
 
 /*
   InsuTrack UI color system
@@ -28,16 +29,24 @@ import { finishMealReminderAlarm } from "../features/reminders/notificationUtils
   Soft danger: #FDECEC
 */
 
-function formatDateTime(value) {
-  if (!value) return "Now";
+function formatDateTime(value, language) {
+  if (!value) {
+    return language === "id" ? "Sekarang" : "Now";
+  }
 
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat(language === "id" ? "id-ID" : "en", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
 }
 
 export default function MealReminderAlarm() {
+  const { t, language } = useLanguage();
+
+  function text(key, fallback) {
+    return t?.[key] || fallback;
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   const [reminder, setReminder] = useState(null);
 
@@ -80,19 +89,21 @@ export default function MealReminderAlarm() {
 
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#24786E]">
-                InsuTrack reminder
+                {text("insutrackReminder", "InsuTrack reminder")}
               </p>
 
               <h2
                 id="meal-reminder-title"
                 className="mt-2 text-2xl font-bold tracking-tight text-[#102A43]"
               >
-                Meal time
+                {text("mealTime", "Meal time")}
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-[#486581]">
-                This is your personal routine reminder after a rapid-acting
-                insulin log.
+                {text(
+                  "mealReminderAlarmDescription",
+                  "This is your personal routine reminder after a rapid-acting insulin log."
+                )}
               </p>
             </div>
           </div>
@@ -101,25 +112,31 @@ export default function MealReminderAlarm() {
         <div className="p-6">
           <div className="rounded-3xl border border-[#BFE7E1] bg-[#E8F7F5] p-5">
             <p className="text-xs font-bold uppercase tracking-wide text-[#24786E]">
-              Reminder time
+              {text("reminderTime", "Reminder time")}
             </p>
 
             <p className="mt-1 text-base font-bold text-[#124E47]">
-              {formatDateTime(reminder?.remind_at)}
+              {formatDateTime(reminder?.remind_at, language)}
             </p>
 
             <p className="mt-3 text-sm leading-6 text-[#246B63]">
-              Personal routine reminder only. Follow your clinician&apos;s
-              instructions.
+              {text(
+                "routineReminderOnly",
+                "Personal routine reminder only. Follow your clinician's instructions."
+              )}
             </p>
           </div>
 
           <div className="mt-4 rounded-3xl border border-[#F6D365] bg-[#FFF8E1] p-5">
-            <p className="text-sm font-bold text-[#8A5A00]">Safety note</p>
+            <p className="text-sm font-bold text-[#8A5A00]">
+              {text("safetyNote", "Safety note")}
+            </p>
 
             <p className="mt-2 text-sm leading-6 text-[#8A5A00]">
-              InsuTrack does not calculate doses, decide meal timing, or provide
-              medical advice.
+              {text(
+                "mealReminderAlarmSafetyText",
+                "InsuTrack does not calculate doses, decide meal timing, or provide medical advice."
+              )}
             </p>
           </div>
 
@@ -128,7 +145,7 @@ export default function MealReminderAlarm() {
             onClick={handleClose}
             className="mt-5 w-full rounded-xl bg-[#2A9D8F] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#24786E] focus:outline-none focus:ring-4 focus:ring-[#E8F7F5]"
           >
-            I understand
+            {text("iUnderstand", "I understand")}
           </button>
         </div>
       </div>
