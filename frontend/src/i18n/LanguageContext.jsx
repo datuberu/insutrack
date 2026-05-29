@@ -335,6 +335,29 @@ const translations = {
     noGlossaryTermsFoundText: "Try another search keyword or category.",
     glossarySafetyNote:
         "This glossary is only for understanding terms used in InsuTrack. It is not medical advice.",
+    
+    //History filters
+    // History filters
+    filterHistory: "Filter history",
+    findInjectionLogs: "Find injection logs",
+    filterHistoryText:
+        "Search and filter saved records by recorder, insulin type, warning status, or injection date.",
+    resetFilters: "Reset filters",
+    search: "Search",
+    searchByRecorderOrNotes: "Search by recorder or notes",
+    allTypes: "All types",
+    warningStatus: "Warning status",
+    allRecords: "All records",
+    warningOnly: "Warning only",
+    noWarning: "No warning",
+    fromDate: "From date",
+    toDate: "To date",
+    showing: "Showing",
+    of: "of",
+    records: "records",
+    noMatchingLogs: "No matching logs found",
+    noMatchingLogsText:
+        "Try changing or resetting the filters to see more records.",
     },
 
   id: {
@@ -600,8 +623,8 @@ const translations = {
     checkAndSaveInjectionLog: "Periksa dan simpan catatan suntikan",
     logSafetyNoteText:
         "InsuTrack hanya merupakan alat pencatatan dan pengecekan rutinitas. Aplikasi ini tidak menghitung dosis atau memberikan saran medis. Ikuti instruksi tenaga kesehatan Anda.",
+
     // Pre-injection check page
-    // Indonesian
     preCheckSubtitle:
         "Tinjau catatan terbaru sebelum mencatat suntikan berikutnya. Ini membantu Anda memeriksa apakah jenis insulin yang sama sudah dicatat baru-baru ini.",
     chooseInsulin: "Pilih insulin",
@@ -671,6 +694,28 @@ const translations = {
     noGlossaryTermsFoundText: "Coba kata kunci atau kategori lain.",
     glossarySafetyNote:
         "Glosarium ini hanya untuk membantu memahami istilah yang digunakan di InsuTrack. Ini bukan saran medis.",
+    
+    //History filters
+    filterHistory: "Filter riwayat",
+    findInjectionLogs: "Cari catatan suntikan",
+    filterHistoryText:
+        "Cari dan filter catatan berdasarkan pencatat, jenis insulin, status peringatan, atau tanggal suntikan.",
+    resetFilters: "Reset filter",
+    search: "Cari",
+    searchByRecorderOrNotes: "Cari berdasarkan pencatat atau catatan",
+    allTypes: "Semua jenis",
+    warningStatus: "Status peringatan",
+    allRecords: "Semua catatan",
+    warningOnly: "Hanya peringatan",
+    noWarning: "Tanpa peringatan",
+    fromDate: "Dari tanggal",
+    toDate: "Sampai tanggal",
+    showing: "Menampilkan",
+    of: "dari",
+    records: "catatan",
+    noMatchingLogs: "Tidak ada catatan yang cocok",
+    noMatchingLogsText:
+        "Coba ubah atau reset filter untuk melihat lebih banyak catatan.",
   },
 };
 
