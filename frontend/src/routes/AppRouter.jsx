@@ -6,6 +6,7 @@ import LogInjectionPage from "../pages/LogInjectionPage";
 import PreCheckPage from "../pages/PreCheckPage";
 import HistoryPage from "../pages/HistoryPage";
 import EditInjectionPage from "../pages/EditInjectionPage";
+import GlossaryPage from "../pages/GlossaryPage";
 import ProtectedRoute from "./ProtectedRoute";
 
 export default function AppRouter() {
@@ -49,6 +50,15 @@ export default function AppRouter() {
           element={
             <ProtectedRoute>
               <HistoryPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/glossary"
+          element={
+            <ProtectedRoute>
+              <GlossaryPage />
             </ProtectedRoute>
           }
         />

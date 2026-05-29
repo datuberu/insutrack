@@ -267,7 +267,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="mt-7 grid gap-4 md:grid-cols-3">
+            <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <ActionCard
                 to="/pre-check"
                 eyebrow={text("beforeInjection", "Before injection")}
@@ -303,6 +303,17 @@ export default function DashboardPage() {
                   "View, edit, or delete saved injection logs and review close injection-time warning details."
                 )}
                 actionLabel={text("viewHistory", "View history")}
+              />
+
+              <ActionCard
+                to="/glossary"
+                eyebrow={text("educationalReference", "Educational reference")}
+                title={text("glossary", "Glossary")}
+                description={text(
+                  "dashboardGlossaryDescription",
+                  "Read simple explanations of terms used in InsuTrack, including safety checks, insulin types, reminders, and warning messages."
+                )}
+                actionLabel={text("viewGlossary", "View glossary")}
               />
             </div>
           </div>

@@ -303,6 +303,38 @@ const translations = {
     mealReminderAlarmSafetyText:
         "InsuTrack does not calculate doses, decide meal timing, or provide medical advice.",
     iUnderstand: "I understand",
+
+    // Glossary page
+    glossary: "Glossary",
+    educationalReference: "Educational reference",
+    viewGlossary: "View glossary",
+    dashboardGlossaryDescription:
+        "Read simple explanations of terms used in InsuTrack, including safety checks, insulin types, reminders, and warning messages.",
+    glossaryTitle: "Glossary",
+    glossarySubtitle:
+        "Learn the meaning of important terms used in InsuTrack, including insulin logging, safety checks, reminders, and warning messages.",
+    understandTerms: "Understand terms",
+    understandTermsText:
+        "Review simple explanations for words used across the app.",
+    bilingualSupport: "Bilingual support",
+    bilingualSupportText: "The glossary follows your selected language.",
+    notMedicalAdvice: "Not medical advice",
+    notMedicalAdviceText:
+        "The glossary explains app terms only. Follow your clinician's instructions.",
+    searchGlossary: "Search glossary",
+    searchGlossaryPlaceholder: "Search insulin, reminder, safety...",
+    category: "Category",
+    allCategories: "All categories",
+    clearFilters: "Clear filters",
+    loadingGlossary: "Loading glossary...",
+    glossaryError: "Glossary error",
+    glossaryLoadError: "Could not load glossary terms. Please try again.",
+    glossaryResults: "Glossary results",
+    termsFound: "terms found",
+    noGlossaryTermsFound: "No glossary terms found",
+    noGlossaryTermsFoundText: "Try another search keyword or category.",
+    glossarySafetyNote:
+        "This glossary is only for understanding terms used in InsuTrack. It is not medical advice.",
     },
 
   id: {
@@ -607,6 +639,38 @@ const translations = {
     mealReminderAlarmSafetyText:
         "InsuTrack tidak menghitung dosis, menentukan waktu makan, atau memberikan saran medis.",
     iUnderstand: "Saya mengerti",
+
+    // Glossary page
+    glossary: "Glosarium",
+    educationalReference: "Referensi edukasi",
+    viewGlossary: "Lihat glosarium",
+    dashboardGlossaryDescription:
+        "Baca penjelasan sederhana tentang istilah yang digunakan di InsuTrack, termasuk pengecekan keselamatan, jenis insulin, pengingat, dan pesan peringatan.",
+    glossaryTitle: "Glosarium",
+    glossarySubtitle:
+        "Pelajari arti istilah penting yang digunakan di InsuTrack, termasuk pencatatan insulin, pengecekan keselamatan, pengingat, dan pesan peringatan.",
+    understandTerms: "Pahami istilah",
+    understandTermsText:
+        "Tinjau penjelasan sederhana untuk kata-kata yang digunakan di aplikasi.",
+    bilingualSupport: "Dukungan dua bahasa",
+    bilingualSupportText: "Glosarium mengikuti bahasa yang Anda pilih.",
+    notMedicalAdvice: "Bukan saran medis",
+    notMedicalAdviceText:
+        "Glosarium hanya menjelaskan istilah aplikasi. Ikuti instruksi tenaga kesehatan Anda.",
+    searchGlossary: "Cari glosarium",
+    searchGlossaryPlaceholder: "Cari insulin, pengingat, keselamatan...",
+    category: "Kategori",
+    allCategories: "Semua kategori",
+    clearFilters: "Hapus filter",
+    loadingGlossary: "Memuat glosarium...",
+    glossaryError: "Kesalahan glosarium",
+    glossaryLoadError: "Tidak dapat memuat istilah glosarium. Coba lagi.",
+    glossaryResults: "Hasil glosarium",
+    termsFound: "istilah ditemukan",
+    noGlossaryTermsFound: "Tidak ada istilah glosarium ditemukan",
+    noGlossaryTermsFoundText: "Coba kata kunci atau kategori lain.",
+    glossarySafetyNote:
+        "Glosarium ini hanya untuk membantu memahami istilah yang digunakan di InsuTrack. Ini bukan saran medis.",
   },
 };
 
