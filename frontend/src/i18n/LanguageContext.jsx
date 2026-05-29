@@ -41,7 +41,7 @@ const translations = {
       "Please log in with your username and password to continue.",
 
     // Login page
-    loginTitle: "Welcome back",
+    loginTitle: "Welcome",
     loginSubtitle: "Login to access your dashboard and injection history.",
     loginHeroTitle: "Safety-first insulin logging and routine checking.",
     loginHeroSubtitle:
@@ -342,7 +342,7 @@ const translations = {
       "Silakan masuk dengan nama pengguna dan kata sandi Anda untuk melanjutkan.",
 
     // Login page
-    loginTitle: "Selamat datang kembali",
+    loginTitle: "Selamat datang",
     loginSubtitle: "Masuk untuk mengakses dashboard dan riwayat suntikan.",
     loginHeroTitle:
       "Pencatatan insulin dan pengecekan rutinitas yang mengutamakan keselamatan.",
