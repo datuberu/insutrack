@@ -260,7 +260,7 @@ export default function DashboardPage() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-fit rounded-xl border border-[#B8C9D9] bg-white px-4 py-2 text-sm font-semibold text-[#1F4E79] shadow-sm transition hover:bg-[#EAF2F8]"
+                  className="w-fit rounded-xl border border-[#C53030] bg-[#E53E3E] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#C53030] focus:outline-none focus:ring-4 focus:ring-[#FDECEC]"
                 >
                   {text("logout", "Logout")}
                 </button>
